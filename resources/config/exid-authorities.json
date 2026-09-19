@@ -20,7 +20,7 @@
     {
       "key": "gov",
       "label": "GOV",
-      "type_uris": ["https://gov.genealogy.net/item/show/"],
+      "type_uris": ["https://gov.genealogy.net/item/show/", "https://gov.genealogy.net/"],
       "url_template": "https://gov.genealogy.net/item/show/{value}",
       "value_pattern": "[A-Za-z0-9_]+",
       "allowed_hosts": ["gov.genealogy.net"]

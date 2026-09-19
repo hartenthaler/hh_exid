@@ -42,6 +42,14 @@ checkouts and is not used at runtime.
 This stage provides the parser and the public `ExidServices` facade for other
 modules. It does not yet add an editor or a provider-specific page renderer.
 
+## GEDCOM 7 registry
+
+The registered GEDCOM 7 `EXID.TYPE` definitions are kept separately in
+`resources/config/gedcom-exid-types.json`. They are a deduplicated snapshot of
+the official [FamilySearch GEDCOM registries](https://github.com/FamilySearch/GEDCOM-registries/tree/main/uri/exid-types),
+including the source commit used for the snapshot. Provider link templates stay
+in `exid-authorities.json` and are deliberately maintained separately.
+
 ## Credits
 
 Maintained by Hermann Hartenthaler with assistance from Codex.
