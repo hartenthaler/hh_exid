@@ -6,23 +6,22 @@ namespace Hartenthaler\Webtrees\Module\ExidModule\Elements;
 
 use Fisharebest\Webtrees\Elements\ExternalIdentifier;
 use Fisharebest\Webtrees\Tree;
-use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierLinker;
 
-/**
- * Render an external identifier as a safe link whenever its value can be
- * resolved unambiguously by the EXID authority catalogue.
- */
+use function htmlspecialchars;
+
+use const ENT_QUOTES;
+use const ENT_SUBSTITUTE;
+
+/** Mark an EXID value for URI-aware client-side rendering. */
 final class ExtendedExternalIdentifier extends ExternalIdentifier
 {
-    public function __construct(
-        string $label,
-        private readonly ExternalIdentifierLinker $linker,
-    ) {
+    public function __construct(string $label)
+    {
         parent::__construct($label);
     }
 
     public function value(string $value, Tree $tree): string
     {
-        return $this->linker->htmlForValue($value);
+        return '<span data-exid-value>' . htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</span>';
     }
 }

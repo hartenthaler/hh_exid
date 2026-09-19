@@ -46,18 +46,4 @@ final class ExternalIdentifierLinker
         return '<a href="' . htmlspecialchars($url, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" target="_blank" rel="noopener noreferrer">' . $value . '</a>';
     }
 
-    /**
-     * Render a value when webtrees has not passed the sibling TYPE line.
-     */
-    public function htmlForValue(string $value): string
-    {
-        $escaped = htmlspecialchars(trim($value), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $url     = $this->catalog->urlForValue($value);
-
-        if ($url === null) {
-            return $escaped;
-        }
-
-        return '<a href="' . htmlspecialchars($url, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" target="_blank" rel="noopener noreferrer">' . $escaped . '</a>';
-    }
 }

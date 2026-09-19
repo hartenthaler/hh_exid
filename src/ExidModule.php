@@ -67,7 +67,16 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface, Module
 
     public function bodyContent(): string
     {
-        return '<script src="' . e($this->assetUrl('exid-type.js')) . '" defer></script>';
+        $typeUris = [];
+
+        foreach (ExidServices::catalog()->all() as $authority) {
+            foreach ($authority['type_uris'] as $uri) {
+                $typeUris[$uri] = true;
+            }
+        }
+
+        return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
+            '<script src="' . e($this->assetUrl('exid-type.js')) . '" defer></script>';
     }
 
     public function customTranslations(string $language): array
@@ -100,7 +109,6 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface, Module
     {
         $element = static fn (): ExtendedExternalIdentifier => new ExtendedExternalIdentifier(
             MoreI18N::xlate('External identifier'),
-            ExidServices::linker(),
         );
         $type = fn (): ExtendedExternalIdentifierType => new ExtendedExternalIdentifierType(
             MoreI18N::xlate('Type'),
