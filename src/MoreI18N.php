@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Hartenthaler\Webtrees\Module\HhModuleTemplate;
+namespace Hartenthaler\Webtrees\Module\ExidModule;
 
 use Fisharebest\Webtrees\I18N;
 
