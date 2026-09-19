@@ -23,3 +23,11 @@ msgstr ""
 #: src/ExidModule.php
 msgid "Support for GEDCOM external identifiers in shared places."
 msgstr ""
+
+#: src/Elements/ExtendedExternalIdentifierType.php
+msgid "Select a defined URI"
+msgstr ""
+
+#: src/Elements/ExtendedExternalIdentifierType.php
+msgid "Toggle URI selection"
+msgstr ""

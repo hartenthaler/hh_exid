@@ -6,16 +6,19 @@ namespace Hartenthaler\Webtrees\Module\ExidModule;
 
 use Fisharebest\Localization\Translation;
 use Fisharebest\Webtrees\Elements\ExternalIdentifier;
-use Fisharebest\Webtrees\Elements\ExternalIdentifierType;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Module\AbstractModule;
 use Fisharebest\Webtrees\Module\ModuleCustomInterface;
 use Fisharebest\Webtrees\Module\ModuleCustomTrait;
+use Fisharebest\Webtrees\Module\ModuleGlobalInterface;
 use Fisharebest\Webtrees\Registry;
+use Hartenthaler\Webtrees\Module\ExidModule\Elements\ExtendedExternalIdentifier;
+use Hartenthaler\Webtrees\Module\ExidModule\Elements\ExtendedExternalIdentifierType;
+use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidTypeCatalog;
 
 use function file_exists;
 
-class ExidModule extends AbstractModule implements ModuleCustomInterface
+class ExidModule extends AbstractModule implements ModuleCustomInterface, ModuleGlobalInterface
 {
     use ModuleCustomTrait;
 
@@ -57,6 +60,16 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface
         return __DIR__ . '/../resources/';
     }
 
+    public function headContent(): string
+    {
+        return '';
+    }
+
+    public function bodyContent(): string
+    {
+        return '<script src="' . e($this->assetUrl('exid-type.js')) . '" defer></script>';
+    }
+
     public function customTranslations(string $language): array
     {
         $file = $this->resourcesFolder() . 'lang/' . $language . '.mo';
@@ -69,9 +82,9 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface
      *
      * webtrees already registers standard GEDCOM 7 EXID elements for the
      * contexts covered by its core tag catalogue. Shared places use the
-     * Vesta _LOC record, so these paths are added by this independent module.
-     * Both the GEDCOM 5.5.1 custom spelling (_EXID) and the GEDCOM 7 spelling
-     * (EXID) are accepted.
+     * Vesta _LOC records and individual records need the same independent
+     * registration for editing. Both the GEDCOM 5.5.1 custom spelling
+     * (_EXID) and the GEDCOM 7 spelling (EXID) are accepted.
      */
     public function boot(): void
     {
@@ -85,11 +98,24 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface
      */
     protected function customTags(): array
     {
+        $element = static fn (): ExtendedExternalIdentifier => new ExtendedExternalIdentifier(
+            MoreI18N::xlate('External identifier'),
+            ExidServices::linker(),
+        );
+        $type = fn (): ExtendedExternalIdentifierType => new ExtendedExternalIdentifierType(
+            MoreI18N::xlate('Type'),
+            $this->exidTypeLabels(),
+        );
+
         return [
-            '_LOC:_EXID'      => new ExternalIdentifier(MoreI18N::xlate('External identifier')),
-            '_LOC:_EXID:TYPE' => new ExternalIdentifierType(MoreI18N::xlate('Type')),
-            '_LOC:EXID'       => new ExternalIdentifier(MoreI18N::xlate('External identifier')),
-            '_LOC:EXID:TYPE'  => new ExternalIdentifierType(MoreI18N::xlate('Type')),
+            'INDI:EXID'       => $element(),
+            'INDI:EXID:TYPE'  => $type(),
+            'INDI:_EXID'      => $element(),
+            'INDI:_EXID:TYPE' => $type(),
+            '_LOC:_EXID'      => $element(),
+            '_LOC:EXID'       => $element(),
+            '_LOC:_EXID:TYPE' => $type(),
+            '_LOC:EXID:TYPE'  => $type(),
         ];
     }
 
@@ -99,9 +125,30 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface
     protected function customSubTags(): array
     {
         return [
-            '_LOC'       => [['_EXID', '0:M'], ['EXID', '0:M']],
+            'INDI'       => [['EXID', '0:M']],
+            'INDI:EXID'  => [['TYPE', '0:1']],
+            'INDI:_EXID' => [['TYPE', '0:1']],
+            '_LOC'       => [['_EXID', '0:M']],
             '_LOC:_EXID' => [['TYPE', '0:1']],
             '_LOC:EXID'  => [['TYPE', '0:1']],
         ];
+    }
+
+    /** @return array<string,string> */
+    private function exidTypeLabels(): array
+    {
+        $labels = [];
+
+        foreach (GedcomExidTypeCatalog::fromJsonFile(__DIR__ . '/../resources/config/gedcom-exid-types.json')->all() as $type) {
+            $labels[$type['uri']] = $type['label'] . ' — ' . $type['uri'];
+        }
+
+        foreach (ExidServices::catalog()->all() as $authority) {
+            foreach ($authority['type_uris'] as $uri) {
+                $labels[$uri] ??= $authority['label'] . ' — ' . $uri;
+            }
+        }
+
+        return $labels;
     }
 }

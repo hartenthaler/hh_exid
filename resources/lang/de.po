@@ -23,3 +23,9 @@ msgstr "Externe Kennungen (EXID)"
 
 msgid "Support for GEDCOM external identifiers in shared places."
 msgstr "Unterstützung für GEDCOM-EXID in gemeinsamen Orten."
+
+msgid "Select a defined URI"
+msgstr "Definierte URI auswählen"
+
+msgid "Toggle URI selection"
+msgstr "URI-Auswahl umschalten"
