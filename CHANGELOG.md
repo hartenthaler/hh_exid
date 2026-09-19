@@ -2,7 +2,8 @@
 
 ## Next release
 
-- Initial module created from the hh webtrees module template.
-- Register `_LOC:_EXID` and `_LOC:EXID` with their optional `TYPE` child.
-- Add an allow-listed authority catalogue, GEDCOM parser, and safe link service.
-- Add the deduplicated official GEDCOM 7 EXID type registry snapshot.
+- Render catalog-recognizable EXID values as safe clickable links in webtrees.
+- Make `EXID` available in the individual facts/events editor and avoid listing
+  both GEDCOM spellings as duplicate `_LOC` editor options.
+- Offer registered EXID TYPE URIs in the editor, with a `+` control for custom
+  authority URIs.

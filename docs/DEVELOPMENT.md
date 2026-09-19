@@ -22,4 +22,9 @@ Module-specific strings belong in PO files. Compile every changed PO file to its
 
 ## Releases
 
-Keep meaningful user-facing changes in the `Next release` section of `CHANGELOG.md`. Release notes are generated from this section. Build assets from tracked files only.
+Keep meaningful user-facing changes compared with the previous development
+stage in the `Next release` section of `CHANGELOG.md`. Do not list the
+template origin of the module or internal bug fixes made within the current
+stage; those details belong in commits and pull requests, not in the user-
+facing changelog. Release notes are generated from this section. Build assets
+from tracked files only.

@@ -129,6 +129,38 @@ final class ExternalIdentifierCatalog
         return $url;
     }
 
+    /**
+     * Resolve an untyped value using the first matching authority definition.
+     *
+     * GEDCOM stores TYPE as a sibling line, while webtrees renders the EXID
+     * value element independently. This best-effort fallback therefore uses
+     * the deterministic order in the catalogue for values without context.
+     */
+    public function urlForValue(string $value): ?string
+    {
+        foreach ($this->definitions as $definition) {
+            if (preg_match('/\A' . $definition['value_pattern'] . '\z/u', trim($value)) !== 1) {
+                continue;
+            }
+
+            $url = str_replace('{value}', rawurlencode(trim($value)), $definition['url_template']);
+            $parts = parse_url($url);
+
+            if (!is_array($parts)
+                || ($parts['scheme'] ?? '') !== 'https'
+                || !is_string($parts['host'] ?? null)
+                || !in_array(strtolower($parts['host']), array_map('strtolower', $definition['allowed_hosts']), true)
+                || isset($parts['user'], $parts['pass'], $parts['port'])
+            ) {
+                continue;
+            }
+
+            return $url;
+        }
+
+        return null;
+    }
+
     /** @return list<array{key:string,label:string,type_uris:list<string>,url_template:string,value_pattern:string,allowed_hosts:list<string>}> */
     public function all(): array
     {

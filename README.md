@@ -23,6 +23,14 @@ identifiers are preserved.
 - keeps the official GEDCOM 7 registry snapshot separate from application link templates;
 - uses the standard webtrees PO/MO translation system.
 
+## Editing the TYPE value
+
+When an EXID is entered or edited, the `TYPE` field offers the registered
+authority URIs as a selection. Use the `+` button next to the field to enter a
+different URI as free text. Existing values that are not in the catalogue are
+shown in the free-text mode automatically, so that they can be preserved and
+edited without being lost.
+
 The module is independent of provider modules. It can be used as a common
 foundation by other webtrees modules, but it does not require them.
 
