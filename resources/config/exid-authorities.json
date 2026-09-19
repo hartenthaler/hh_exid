@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "authorities": [
+    {
+      "key": "wikidata",
+      "label": "Wikidata",
+      "type_uris": ["https://www.wikidata.org/entity/"],
+      "url_template": "https://www.wikidata.org/entity/{value}",
+      "value_pattern": "Q[1-9][0-9]*",
+      "allowed_hosts": ["www.wikidata.org"]
+    },
+    {
+      "key": "factgrid",
+      "label": "FactGrid",
+      "type_uris": ["https://database.factgrid.de/entity/"],
+      "url_template": "https://database.factgrid.de/entity/{value}",
+      "value_pattern": "Q[1-9][0-9]*",
+      "allowed_hosts": ["database.factgrid.de"]
+    },
+    {
+      "key": "gov",
+      "label": "GOV",
+      "type_uris": ["https://gov.genealogy.net/item/show/"],
+      "url_template": "https://gov.genealogy.net/item/show/{value}",
+      "value_pattern": "[A-Za-z0-9_]+",
+      "allowed_hosts": ["gov.genealogy.net"]
+    },
+    {
+      "key": "geonames",
+      "label": "GeoNames",
+      "type_uris": ["https://www.geonames.org/", "https://sws.geonames.org/"],
+      "url_template": "https://www.geonames.org/{value}/",
+      "value_pattern": "[0-9]+",
+      "allowed_hosts": ["www.geonames.org"]
+    },
+    {
+      "key": "genwiki",
+      "label": "GenWiki",
+      "type_uris": ["https://wiki.genealogy.net/?curid="],
+      "url_template": "https://wiki.genealogy.net/?curid={value}",
+      "value_pattern": "[0-9]+",
+      "allowed_hosts": ["wiki.genealogy.net"]
+    },
+    {
+      "key": "gnd",
+      "label": "GND",
+      "type_uris": ["https://d-nb.info/gnd/"],
+      "url_template": "https://d-nb.info/gnd/{value}",
+      "value_pattern": "[0-9]+(?:-[0-9X]+)?",
+      "allowed_hosts": ["d-nb.info"]
+    }
+  ]
+}

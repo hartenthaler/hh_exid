@@ -12,9 +12,10 @@ URI of the external authority.
 3 TYPE https://www.wikidata.org/entity/
 ```
 
-The module is intentionally independent of provider modules. It does not yet
-interpret or link authority-specific values; that is planned for a later
-stage. Multiple identifiers are preserved.
+The module is intentionally independent of provider modules. Known authority
+URIs are resolved through an allow-listed catalogue and produce safe HTTPS
+links; unknown authorities remain escaped text. Multiple identifiers are
+preserved.
 
 ## Included
 
@@ -36,13 +37,10 @@ modules. Its Composer package type is `webtrees-module`; the official
 `webtrees/module-installer` is only an optional installation helper for source
 checkouts and is not used at runtime.
 
-## Scope of version 1
+## Scope of version 2
 
-This first stage registers the GEDCOM structures and preserves multiple
-identifiers. Authority-specific labels, safe links and editing support will be
-added in later stages.
-
-The module name must be the exact directory name used below `modules_v4`. The class name must be a valid PHP identifier.
+This stage provides the parser and the public `ExidServices` facade for other
+modules. It does not yet add an editor or a provider-specific page renderer.
 
 ## Credits
 
