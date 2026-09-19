@@ -20,7 +20,8 @@ final class ExidServices
 
     public static function catalog(): ExternalIdentifierCatalog
     {
-        return self::$catalog ??= ExternalIdentifierCatalog::fromJsonFile(__DIR__ . '/../resources/config/exid-authorities.json');
+        return self::$catalog ??= ExternalIdentifierCatalog::fromJsonFile(__DIR__ . '/../resources/config/exid-authorities.json')
+            ->mergeRegistry(self::gedcomTypeCatalog());
     }
 
     public static function linker(): ExternalIdentifierLinker

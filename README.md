@@ -11,16 +11,19 @@ of the external authority.
 2 TYPE https://www.wikidata.org/entity/
 ```
 
-Known authority URIs are resolved through an allow-listed catalogue and produce
-safe HTTPS links. Unknown authorities remain escaped text, and multiple
-identifiers are preserved.
+The stored `TYPE` URI is the only authority information used for links: the
+identifier value is appended directly to that URI after it has passed the
+allow-list and value validation. If no `TYPE` is present, no link is created.
+Unknown authorities remain escaped text, and multiple identifiers are preserved. The
+identifier value is never classified by its spelling (for example, a `Q` value
+is not assumed to belong to a particular provider).
 
 ## Features
 
 - registers the supported `EXID` and `_EXID` structures, including `TYPE`;
 - parses typed identifiers without guessing an authority from the value;
 - provides safe links for known authorities;
-- keeps the official GEDCOM 7 registry snapshot separate from application link templates;
+- keeps the official GEDCOM 7 registry snapshot separate from the link allow-list;
 - uses the standard webtrees PO/MO translation system.
 
 ## Editing the TYPE value
@@ -45,11 +48,14 @@ checkouts; it is not used at runtime.
 
 ## GEDCOM 7 registry
 
-The registered GEDCOM 7 `EXID.TYPE` definitions are kept separately in
+The registered EXID type definitions are kept separately in
 `resources/config/gedcom-exid-types.json`. They are a deduplicated snapshot of
-the official [FamilySearch GEDCOM registries](https://github.com/FamilySearch/GEDCOM-registries/tree/main/uri/exid-types),
-including the source commit used for the snapshot. Additional link templates stay
-in `exid-authorities.json` and are deliberately maintained separately.
+the [FamilySearch GEDCOM registries](https://github.com/FamilySearch/GEDCOM-registries/tree/main/uri/exid-types),
+including the source commit used for the snapshot. A provider URI such as GOV
+comes from the registry or, only when it is not registered there, the explicit
+provider catalogue; it is never inferred from an EXID and is not a substitute
+for a missing TYPE. If the same URI occurs in both sources, the registry is
+authoritative and the provider definition is discarded.
 
 ## Credits
 

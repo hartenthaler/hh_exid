@@ -9,7 +9,11 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Tree;
 
 use function array_key_exists;
-use function ksort;
+use function htmlspecialchars;
+use function uasort;
+
+use const ENT_QUOTES;
+use const ENT_SUBSTITUTE;
 
 /**
  * An EXID TYPE field with the registered URI choices and a custom URI mode.
@@ -26,7 +30,7 @@ final class ExtendedExternalIdentifierType extends ExternalIdentifierType
     public function values(): array
     {
         $values = $this->uriLabels;
-        ksort($values, SORT_NATURAL | SORT_FLAG_CASE);
+        uasort($values, static fn (string $left, string $right): int => strnatcasecmp($left, $right));
 
         return $values;
     }
@@ -47,11 +51,16 @@ final class ExtendedExternalIdentifierType extends ExternalIdentifierType
         }
 
         return '<div class="input-group" id="' . e($containerId) . '" data-exid-type-control data-exid-type-name="' . e($name) . '">' .
+            '<button class="btn btn-secondary" type="button" data-exid-type-toggle aria-label="' . e(I18N::translate('Toggle URI selection')) . '">' . ($customMode ? '−' : '+') . '</button>' .
             '<select class="form-select' . ($customMode ? ' d-none' : '') . '" id="' . e($selectId) . '" name="' . ($customMode ? '' : e($name)) . '" data-exid-type-select>' .
             $options .
             '</select>' .
             '<input class="form-control' . ($customMode ? '' : ' d-none') . '" id="' . e($customId) . '" name="' . ($customMode ? e($name) : '') . '" value="' . ($customMode ? e($value) : '') . '" type="text" dir="ltr" autocomplete="off" data-exid-type-custom>' .
-            '<button class="btn btn-secondary" type="button" data-exid-type-toggle aria-label="' . e(I18N::translate('Toggle URI selection')) . '">' . ($customMode ? '−' : '+') . '</button>' .
             '</div>';
+    }
+
+    public function value(string $value, Tree $tree): string
+    {
+        return '<span data-exid-type-value dir="ltr">' . htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</span>';
     }
 }

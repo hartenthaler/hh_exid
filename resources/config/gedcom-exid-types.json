@@ -85,6 +85,13 @@
       "documentation": ["https://wiki.genealogy.net/GOV"]
     },
     {
+      "source_file": "GeoNames.yaml",
+      "label": "GeoNames ID",
+      "language": "en-US",
+      "uri": "https://www.geonames.org/",
+      "documentation": ["https://www.geonames.org/"]
+    },
+    {
       "source_file": "RFN.yaml",
       "label": "Record File Number",
       "language": "en-US",
