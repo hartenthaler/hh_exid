@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "source": {
+    "repository": "https://github.com/FamilySearch/GEDCOM-registries",
+    "path": "uri/exid-types",
+    "commit": "6756e8eda04daae190a4c67426d07bdeb2199a8e",
+    "updated": "2025-07-22"
+  },
+  "types": [
+    {
+      "source_file": "AFN.yaml",
+      "label": "Ancestral File Number",
+      "language": "en-US",
+      "uri": "https://gedcom.io/terms/v7/AFN",
+      "documentation": ["https://gedcom.io/migrate/#afn-rfn-rin"]
+    },
+    {
+      "source_file": "BillionGraves-CemeteryId.yaml",
+      "label": "BillionGraves Cemetery ID",
+      "language": "en-US",
+      "uri": "https://www.billiongraves.com/cemetery/name/",
+      "documentation": ["https://billiongraves.com/search/cemetery"]
+    },
+    {
+      "source_file": "BillionGraves-GraveId.yaml",
+      "label": "BillionGraves Grave ID",
+      "language": "en-US",
+      "uri": "https://www.billiongraves.com/grave/name/",
+      "documentation": ["https://billiongraves.com/search"]
+    },
+    {
+      "source_file": "FamilySearch-MemoryId.yaml",
+      "label": "FamilySearch Memory ID",
+      "language": "en-US",
+      "uri": "https://gedcom.io/exid-type/FamilySearch-MemoryId",
+      "documentation": ["https://gedcom.io/exid-type/FamilySearch-MemoryId"]
+    },
+    {
+      "source_file": "FamilySearch-PersonId.yaml",
+      "label": "FamilySearch Person ID",
+      "language": "en-US",
+      "uri": "https://gedcom.io/exid-type/FamilySearch-PersonId",
+      "documentation": ["https://gedcom.io/exid-type/FamilySearch-PersonId"]
+    },
+    {
+      "source_file": "FamilySearch-PlaceId.yaml",
+      "label": "FamilySearch Place ID",
+      "language": "en-US",
+      "uri": "https://gedcom.io/exid-type/FamilySearch-PlaceId",
+      "documentation": ["https://gedcom.io/exid-type/FamilySearch-PlaceId"]
+    },
+    {
+      "source_file": "FamilySearch-SourceDescriptionId.yaml",
+      "label": "FamilySearch Source Description ID",
+      "language": "en-US",
+      "uri": "https://gedcom.io/exid-type/FamilySearch-SourceDescriptionId",
+      "documentation": ["https://gedcom.io/exid-type/FamilySearch-SourceDescriptionId"]
+    },
+    {
+      "source_file": "FamilySearch-UserId.yaml",
+      "label": "FamilySearch User ID",
+      "language": "en-US",
+      "uri": "https://gedcom.io/exid-type/FamilySearch-UserId",
+      "documentation": ["https://gedcom.io/exid-type/FamilySearch-UserId"]
+    },
+    {
+      "source_file": "FindAGrave-CemeteryId.yaml",
+      "label": "FindAGrave Cemetery ID",
+      "language": "en-US",
+      "uri": "https://www.findagrave.com/cemetery/",
+      "documentation": ["https://support.findagrave.com/s/article/Cemetery-Search"]
+    },
+    {
+      "source_file": "FindAGrave-MemorialId.yaml",
+      "label": "FindAGrave Memorial ID",
+      "language": "en-US",
+      "uri": "https://www.findagrave.com/memorial/",
+      "documentation": ["https://support.findagrave.com/s/article/Memorial-Search"]
+    },
+    {
+      "source_file": "GOV-ID.yaml",
+      "label": "GOV Historic Gazeteer ID",
+      "language": "en-US",
+      "uri": "https://gov.genealogy.net/",
+      "documentation": ["https://wiki.genealogy.net/GOV"]
+    },
+    {
+      "source_file": "RFN.yaml",
+      "label": "Record File Number",
+      "language": "en-US",
+      "uri": "https://gedcom.io/terms/v7/RFN",
+      "documentation": ["https://gedcom.io/migrate/#afn-rfn-rin"]
+    },
+    {
+      "source_file": "RIN.yaml",
+      "label": "Record ID Number",
+      "language": "en-US",
+      "uri": "https://gedcom.io/terms/v7/RIN",
+      "documentation": ["https://gedcom.io/migrate/#afn-rfn-rin"]
+    },
+    {
+      "source_file": "WikiTree-PersonId.yaml",
+      "label": "WikiTree Person ID",
+      "language": "en-US",
+      "uri": "https://www.wikitree.com/wiki/",
+      "documentation": ["https://www.wikitree.com/wiki/Help:WikiTree_ID"]
+    }
+  ]
+}
