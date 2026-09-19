@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: hh module template for webtrees 2\n"
+"Project-Id-Version: hh_exid\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-11 12:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -16,10 +16,10 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: .git\n"
 
-#: src/HhModuleTemplate.php
-msgid "HH module template"
+#: src/ExidModule.php
+msgid "External identifiers (EXID)"
 msgstr ""
 
-#: src/HhModuleTemplate.php
-msgid "A reusable starting point for a webtrees custom module."
+#: src/ExidModule.php
+msgid "Support for GEDCOM external identifiers in shared places."
 msgstr ""

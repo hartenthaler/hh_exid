@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Hartenthaler\Webtrees\Module\HhModuleTemplate\HhModuleTemplate;
+use Hartenthaler\Webtrees\Module\ExidModule\ExidModule;
 
 require __DIR__ . '/src/MoreI18N.php';
-require __DIR__ . '/src/HhModuleTemplate.php';
+require __DIR__ . '/src/ExidModule.php';
 
-return new HhModuleTemplate();
+return new ExidModule();
 

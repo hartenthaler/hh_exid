@@ -1,0 +1,14 @@
+{
+  "name": "hartenthaler/hh-exid",
+  "description": "GEDCOM external identifier support for webtrees shared places",
+  "type": "webtrees-module",
+  "license": "GPL-3.0-or-later",
+  "require": {
+    "webtrees/module-installer": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hartenthaler\\Webtrees\\Module\\ExidModule\\": "src/"
+    }
+  }
+}
