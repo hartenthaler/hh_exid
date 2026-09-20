@@ -12,6 +12,7 @@ use function file_get_contents;
 use function is_array;
 use function is_file;
 use function json_decode;
+use function json_encode;
 use function json_last_error;
 use function preg_match;
 use function rawurlencode;
@@ -21,6 +22,8 @@ use function strlen;
 use function trim;
 
 use const JSON_ERROR_NONE;
+use const JSON_PRETTY_PRINT;
+use const JSON_UNESCAPED_SLASHES;
 
 /**
  * Allow-listed metadata for external identifier authorities.
@@ -45,13 +48,35 @@ final class ExternalIdentifierCatalog
         }
 
         $json = file_get_contents($filename);
-        $data = is_string($json) ? json_decode($json, true) : null;
+
+        return self::fromJson(is_string($json) ? $json : '');
+    }
+
+    /**
+     * Parse and validate a module-owned authority catalogue.
+     *
+     * This is deliberately stricter than the runtime reader.  The catalogue
+     * is editable through the administrator UI, so malformed or duplicate
+     * definitions must never be written back to disk.
+     */
+    public static function fromJson(string $json): self
+    {
+        if (strlen($json) > 200000) {
+            throw new RuntimeException('The EXID authority catalogue is too large.');
+        }
+
+        $data = json_decode($json, true);
 
         if (json_last_error() !== JSON_ERROR_NONE || !is_array($data) || !is_array($data['authorities'] ?? null)) {
             throw new RuntimeException('The EXID authority catalogue is invalid.');
         }
 
+        if (($data['version'] ?? null) !== 1) {
+            throw new RuntimeException('The EXID authority catalogue must use version 1.');
+        }
+
         $definitions = [];
+        $uris = [];
 
         foreach ($data['authorities'] as $definition) {
             if (!is_array($definition)
@@ -67,8 +92,32 @@ final class ExternalIdentifierCatalog
             $typeUris = array_values(array_filter($definition['type_uris'], 'is_string'));
             $hosts    = array_values(array_filter($definition['allowed_hosts'], 'is_string'));
 
-            if ($typeUris === [] || $hosts === []) {
-                continue;
+            if ($typeUris === [] || $hosts === []
+                || preg_match('/\A[a-z0-9][a-z0-9:_-]{0,79}\z/', $definition['key']) !== 1
+                || strlen($definition['label']) > 200
+                || strlen($definition['value_pattern']) > 200
+            ) {
+                throw new RuntimeException('The EXID authority catalogue contains an invalid authority definition.');
+            }
+
+            foreach ($typeUris as $typeUri) {
+                $parts = parse_url(trim($typeUri));
+                if (($parts['scheme'] ?? '') !== 'https' || !is_string($parts['host'] ?? null) || isset($uris[trim($typeUri)])) {
+                    throw new RuntimeException('The EXID authority catalogue contains an invalid or duplicate TYPE URI.');
+                }
+
+                $uris[trim($typeUri)] = true;
+            }
+
+            foreach ($hosts as $host) {
+                if (preg_match('/\A[a-z0-9.-]{1,253}\z/i', $host) !== 1) {
+                    throw new RuntimeException('The EXID authority catalogue contains an invalid host.');
+                }
+            }
+
+            // Compile the configured expression before it can be saved.
+            if (@preg_match('/\A(?:' . $definition['value_pattern'] . ')\z/u', '') === false) {
+                throw new RuntimeException('The EXID authority catalogue contains an invalid value pattern.');
             }
 
             $definitions[] = [
@@ -81,6 +130,20 @@ final class ExternalIdentifierCatalog
         }
 
         return new self($definitions);
+    }
+
+    public function toJson(): string
+    {
+        $json = json_encode([
+            'version'     => 1,
+            'authorities' => $this->definitions,
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        if (!is_string($json)) {
+            throw new RuntimeException('The EXID authority catalogue could not be encoded.');
+        }
+
+        return $json . "\n";
     }
 
     public function mergeRegistry(GedcomExidTypeCatalog $registry): self

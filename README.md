@@ -13,6 +13,7 @@ This webtrees module provides support for external identifiers.
 * [Editing the TYPE value](#editing-the-type-value)
 * [For administrators](#for-administrators)
 * [Choosing the tag for new identifiers](#choosing-the-tag-for-new-identifiers)
+* [Managing the authority catalogue](#managing-the-authority-catalogue)
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Security and privacy](#security-and-privacy)
@@ -59,6 +60,21 @@ installations. Modules that create identifiers can use the public
 `ExidServices::preferredTag()` service when hh_exid is installed and active.
 Such modules must detect the optional service and use `_EXID` themselves as a
 safe fallback when hh_exid is unavailable.
+
+### Managing the authority catalogue
+
+The administration page shows the module-owned `exid-authorities.json` seed
+catalogue in an editable JSON field. The active copy is stored as
+`data/hh_exid/exid-authorities.json` in the webtrees data directory, so module
+updates do not overwrite administrator changes. It is intended for reviewed
+additional authorities:
+each entry defines its label, one or more `TYPE` URIs, the accepted identifier
+pattern and the allowed link host. The module validates the JSON and rejects
+duplicate or unsafe definitions before replacing the file atomically.
+
+The official GEDCOM 7 `gedcom-exid-types.json` snapshot is displayed below it in
+a compact, read-only table. It is maintained from the FamilySearch registry and
+cannot be changed through the administration page.
 
 ### Requirements
 

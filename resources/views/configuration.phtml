@@ -8,6 +8,9 @@ use Fisharebest\Webtrees\I18N;
 /** @var string $title */
 /** @var string $description */
 /** @var string $selected_tag */
+/** @var string $authority_catalogue_json */
+/** @var bool $authority_catalogue_writable */
+/** @var list<array{source_file:string,label:string,language:string,uri:string,documentation:list<string>}> $gedcom_types */
 ?>
 
 <?= view('components/breadcrumbs', [
@@ -29,6 +32,42 @@ use Fisharebest\Webtrees\I18N;
             </select>
             <div class="form-text"><?= I18N::translate('Choose which GEDCOM tag should be generated when a new external identifier is added.') ?></div>
         </div>
+    </div>
+
+    <h2><?= I18N::translate('Custom EXID authorities') ?></h2>
+    <p><?= I18N::translate('Edit the module-owned authority catalogue as JSON. It is used in addition to the official GEDCOM 7 registry.') ?></p>
+    <?php if (!$authority_catalogue_writable) : ?>
+        <div class="alert alert-warning">
+            <?= I18N::translate('The authority catalogue in the webtrees data directory is not writable. Adjust its permissions before saving changes.') ?>
+        </div>
+    <?php endif ?>
+    <div class="mb-3">
+        <label class="form-label" for="authority-catalogue-json"><?= I18N::translate('exid-authorities.json') ?></label>
+        <textarea class="form-control font-monospace" id="authority-catalogue-json" name="authority_catalogue_json" rows="18" spellcheck="false"<?= $authority_catalogue_writable ? '' : ' readonly' ?>><?= e($authority_catalogue_json) ?></textarea>
+        <div class="form-text">
+            <?= I18N::translate('Each authority must define a key, label, one or more HTTPS TYPE URIs, a value pattern and at least one allowed host. Duplicate TYPE URIs are rejected.') ?>
+        </div>
+    </div>
+
+    <h2><?= I18N::translate('GEDCOM 7 EXID registry') ?></h2>
+    <p><?= I18N::translate('The official GEDCOM 7 registry is shown for comparison only and cannot be edited here.') ?></p>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th><?= I18N::translate('Name') ?></th>
+                    <th><?= I18N::translate('TYPE URI') ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($gedcom_types as $type) : ?>
+                    <tr>
+                        <td><?= e($type['label']) ?></td>
+                        <td><code><?= e($type['uri']) ?></code></td>
+                    </tr>
+                <?php endforeach ?>
+            </tbody>
+        </table>
     </div>
 
     <button class="btn btn-primary" type="submit"><?= I18N::translate('Save') ?></button>

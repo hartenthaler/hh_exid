@@ -11,6 +11,7 @@ use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierCat
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierLinker;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierParser;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidTypeCatalog;
+use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\AuthorityCatalogueStorage;
 
 /**
  * Public, provider-independent services for modules that consume EXID data.
@@ -22,7 +23,7 @@ final class ExidServices
 
     public static function catalog(): ExternalIdentifierCatalog
     {
-        return self::$catalog ??= ExternalIdentifierCatalog::fromJsonFile(__DIR__ . '/../resources/config/exid-authorities.json')
+        return self::$catalog ??= AuthorityCatalogueStorage::load()
             ->mergeRegistry(self::gedcomTypeCatalog());
     }
 

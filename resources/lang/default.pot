@@ -49,3 +49,36 @@ msgstr ""
 
 msgid "Choose which GEDCOM tag should be generated when a new external identifier is added."
 msgstr ""
+
+msgid "Custom EXID authorities"
+msgstr ""
+
+msgid "Edit the module-owned authority catalogue as JSON. It is used in addition to the official GEDCOM 7 registry."
+msgstr ""
+
+msgid "The authority catalogue in the webtrees data directory is not writable. Adjust its permissions before saving changes."
+msgstr ""
+
+msgid "exid-authorities.json"
+msgstr ""
+
+msgid "Each authority must define a key, label, one or more HTTPS TYPE URIs, a value pattern and at least one allowed host. Duplicate TYPE URIs are rejected."
+msgstr ""
+
+msgid "GEDCOM 7 EXID registry"
+msgstr ""
+
+msgid "The official GEDCOM 7 registry is shown for comparison only and cannot be edited here."
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "TYPE URI"
+msgstr ""
+
+msgid "The EXID authority catalogue has been updated."
+msgstr ""
+
+msgid "The EXID authority catalogue could not be updated: %s"
+msgstr ""
