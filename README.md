@@ -9,19 +9,24 @@ This webtrees module provides support for external identifiers.
 
 ## Contents
 
-* [Features](#features)
+* [For users](#for-users)
 * [Editing the TYPE value](#editing-the-type-value)
+* [For administrators](#for-administrators)
 * [Choosing the tag for new identifiers](#choosing-the-tag-for-new-identifiers)
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Security and privacy](#security-and-privacy)
-* [GEDCOM 7 registry](#gedcom-7-registry)
+* [Sources of known TYPE URIs](#sources-of-known-type-uris)
 * [Translation](#translation)
 * [Development](#development)
 * [Credits](#credits)
 * [License](#license)
 
-It supports the standard GEDCOM 7 spelling `EXID` and the GEDCOM 5.5.1 custom
+## For users
+
+### Supported GEDCOM structure
+
+The module supports the standard GEDCOM 7 spelling `EXID` and the GEDCOM 5.5.1 custom
 spelling `_EXID`. Each identifier may have one `TYPE` subtag containing the URI
 of the external authority.
 
@@ -35,13 +40,7 @@ identifier value is appended directly to that URI after it has passed the
 allow-list and value validation. If no `TYPE` is present, no link is created.
 Unknown authorities remain escaped text, and multiple identifiers are preserved.
 
-## Features
-
-- registers the supported `EXID` and `_EXID` structures, including `TYPE`;
-- provides safe links for known authorities;
-- keeps the official GEDCOM 7 registry snapshot separate from the link allow-list;
-
-## Editing the TYPE value
+### Editing the TYPE value
 
 When an EXID is entered or edited, the `TYPE` field offers the registered
 authority URIs as a selection. Use the `+` button next to the field to enter a
@@ -49,24 +48,26 @@ different URI as free text. Existing values that are not in the catalogue are
 shown in the free-text mode automatically, so that they can be preserved and
 edited without being lost.
 
-## Choosing the tag for new identifiers
+## For administrators
+
+### Choosing the tag for new identifiers
 
 Administrators can choose in the module configuration whether newly created
 identifiers use the GEDCOM 7 tag `EXID` or the GEDCOM 5.5.1 custom tag
 `_EXID`. The default remains `_EXID` for compatibility with existing webtrees
 installations. Modules that create identifiers can use the public
-`ExidServices::preferredTag()` service; when hh_exid is not active, it returns
-`_EXID` as the safe fallback.
+`ExidServices::preferredTag()` service when hh_exid is installed and active.
+Such modules must detect the optional service and use `_EXID` themselves as a
+safe fallback when hh_exid is unavailable.
 
-## Requirements
+### Requirements
 
-* webtrees 2.2 or later;
-* PHP version supported by the installed webtrees release;
-* administrator access for enabling the module and changing its settings.
+* webtrees 2.2 or 2.3;
+* PHP version supported by the installed webtrees release.
 
-## Installation
+### Installation
 
-### Custom Module Manager (CMM)
+#### Custom Module Manager (CMM)
 
 If the module is published in your Custom Module Manager catalogue:
 
@@ -74,14 +75,14 @@ If the module is published in your Custom Module Manager catalogue:
 2. Find **External identifiers (EXID)** and choose **Install module**.
 3. Enable the module in **Control panel / Modules / Custom modules**.
 
-### Manual installation
+#### Manual installation
 
 1. Download the [latest release](https://github.com/hartenthaler/hh_exid/releases/latest).
 2. Unzip it into the `modules_v4` directory of your webtrees installation.
 3. Ensure that the directory is named `hh_exid`.
 4. Enable **External identifiers (EXID)** in the webtrees administration panel.
 
-### Composer installation
+#### Composer installation
 
 The package type is `webtrees-module` and the module declares the official
 [`webtrees/module-installer`](https://codeberg.org/webtrees/module-installer)
@@ -96,7 +97,7 @@ composer require hartenthaler/hh-exid
 Composer may ask for permission to run the module installer. Updates use
 `composer update hartenthaler/hh-exid`.
 
-## Security and privacy
+### Security and privacy
 
 The module does not treat a stored identifier as an arbitrary URL. A link is
 created only when the `TYPE` URI is registered in the bundled GEDCOM/provider
@@ -109,16 +110,21 @@ renders the stored identifier and its validated authority link. Administrators
 should still review the public visibility of identifiers before publishing a
 family tree.
 
-## GEDCOM 7 registry
+## Sources of known TYPE URIs
 
-The registered EXID type definitions are kept separately in
-`resources/config/gedcom-exid-types.json`. They are a deduplicated snapshot of
-the [FamilySearch GEDCOM registries](https://github.com/FamilySearch/GEDCOM-registries/tree/main/uri/exid-types),
-including the source commit used for the snapshot. A provider URI such as GOV
-comes from the registry or, only when it is not registered there, the explicit
-provider catalogue; it is never inferred from an EXID and is not a substitute
-for a missing TYPE. If the same URI occurs in both sources, the registry is
-authoritative and the provider definition is discarded.
+The selectable and linkable TYPE URIs come from two maintained sources:
+
+1. the official [FamilySearch GEDCOM registry](https://github.com/FamilySearch/GEDCOM-registries/tree/main/uri/exid-types),
+   stored as a documented snapshot in `resources/config/gedcom-exid-types.json`;
+2. the module's own authority catalogue in `resources/config/exid-authorities.json`,
+   which contains additional reviewed authorities.
+
+The two sources are combined without duplicate URI entries. The FamilySearch
+registry remains the reference for entries that it defines; the module
+catalogue supplies additional reviewed authorities that are not part of that
+registry. These catalogues only define which TYPE values are known and how
+their links are validated; an identifier is linked only when its GEDCOM data
+contains a matching TYPE value.
 
 ## Translation
 
