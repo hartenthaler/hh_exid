@@ -132,7 +132,7 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             FlashMessages::addMessage(I18N::translate('The EXID authority catalogue has been updated.'), 'success');
         } catch (\Throwable $exception) {
             FlashMessages::addMessage(
-                I18N::translate('The EXID authority catalogue could not be updated: %s', $exception->getMessage()),
+                I18N::translate('The EXID authority catalogue could not be updated.') . ' ' . $exception->getMessage(),
                 'danger',
             );
         }
