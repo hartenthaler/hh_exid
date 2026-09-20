@@ -2,20 +2,15 @@
 
 ## Next release
 
-- Add an administration editor for the module-owned `exid-authorities.json`
-  catalogue, with validation for URIs, hosts, patterns and duplicate entries.
-- Store the administrator-owned catalogue in webtrees' data directory instead
-  of writing into the installed module directory.
-- Show the official GEDCOM 7 EXID registry in a compact read-only comparison
-  table on the same administration page.
-- Replace the error-prone raw JSON editor with a validated table editor.
-- Validate identifier values against the selected authority pattern before an
-  editor form can be submitted.
-- Render registered EXID links on individual pages as well as shared-place
-  pages, including pages where webtrees uses its core EXID element.
-- Register both EXID spellings across all GEDCOM record contexts supported by
-  the standard (FAM, INDI, OBJE, REPO, SNOTE, SOUR and SUBM), including the
-  supported place-structure contexts; document the complete context matrix.
+
+## 2.2.6.2 - 2026-09-21
+
+- Registered both `EXID` and `_EXID` across all GEDCOM record contexts supported
+  by the standard: `FAM`, `INDI`, `OBJE`, `REPO`, `SNOTE`, `SOUR` and `SUBM`.
+- Extended support to the supported place-structure contexts and retained
+  `_LOC` as a webtrees/Vesta extension.
+- Added documentation explaining the complete EXID context matrix and the
+  distinction between GEDCOM-standard and webtrees-specific contexts.
 
 ## 2.2.6.1 - 2026-09-20
 
