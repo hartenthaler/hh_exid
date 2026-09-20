@@ -31,7 +31,6 @@ use function array_values;
 use function is_array;
 use function json_encode;
 use function preg_split;
-use function sprintf;
 use function trim;
 
 class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleGlobalInterface
@@ -132,10 +131,10 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             AuthorityCatalogueStorage::save($this->catalogueFromRequest($request));
             FlashMessages::addMessage(I18N::translate('The EXID authority catalogue has been updated.'), 'success');
         } catch (\Throwable $exception) {
-            FlashMessages::addMessage(sprintf(
-                I18N::translate('The EXID authority catalogue could not be updated: %s'),
-                $exception->getMessage(),
-            ), 'danger');
+            FlashMessages::addMessage(
+                I18N::translate('The EXID authority catalogue could not be updated: %s', $exception->getMessage()),
+                'danger',
+            );
         }
 
         return redirect($this->getConfigLink());
