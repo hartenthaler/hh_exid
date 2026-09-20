@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\Http\RequestHandlers\ControlPanel;
+use Fisharebest\Webtrees\I18N;
+
+/** @var string $title */
+/** @var string $description */
+/** @var string $selected_tag */
+?>
+
+<?= view('components/breadcrumbs', [
+    'links' => [route(ControlPanel::class) => I18N::translate('Control panel'), $title],
+]) ?>
+
+<h1><?= e($title) ?></h1>
+<p><?= e($description) ?></p>
+
+<form method="post">
+    <?= csrf_field() ?>
+
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label" for="exid-tag"><?= I18N::translate('Tag for new external identifiers') ?></label>
+        <div class="col-sm-9">
+            <select class="form-select" id="exid-tag" name="exid_tag">
+                <option value="EXID" <?= $selected_tag === 'EXID' ? 'selected' : '' ?>><?= e(I18N::translate('EXID (GEDCOM 7)')) ?></option>
+                <option value="_EXID" <?= $selected_tag === '_EXID' ? 'selected' : '' ?>><?= e(I18N::translate('_EXID (GEDCOM 5.5.1)')) ?></option>
+            </select>
+            <div class="form-text"><?= I18N::translate('Choose which GEDCOM tag should be generated when a new external identifier is added.') ?></div>
+        </div>
+    </div>
+
+    <button class="btn btn-primary" type="submit"><?= I18N::translate('Save') ?></button>
+</form>

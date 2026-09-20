@@ -21,11 +21,29 @@ msgstr ""
 msgid "External identifiers (EXID)"
 msgstr "Externe Kennungen (EXID)"
 
-msgid "Support for GEDCOM external identifiers in shared places."
-msgstr "Unterstützung für GEDCOM-EXID in gemeinsamen Orten."
+msgid "Support for GEDCOM external identifiers."
+msgstr "Unterstützung für externe GEDCOM-Kennungen."
 
 msgid "Select a defined URI"
 msgstr "Definierte URI auswählen"
 
 msgid "Toggle URI selection"
 msgstr "URI-Auswahl umschalten"
+
+msgid "The selected EXID tag is invalid."
+msgstr "Das ausgewählte EXID-Kennzeichen ist ungültig."
+
+msgid "The EXID tag preference has been updated."
+msgstr "Die Einstellung für das EXID-Kennzeichen wurde aktualisiert."
+
+msgid "Tag for new external identifiers"
+msgstr "Kennzeichen für neue externe Kennungen"
+
+msgid "EXID (GEDCOM 7)"
+msgstr "EXID (GEDCOM 7)"
+
+msgid "_EXID (GEDCOM 5.5.1)"
+msgstr "_EXID (GEDCOM 5.5.1)"
+
+msgid "Choose which GEDCOM tag should be generated when a new external identifier is added."
+msgstr "Wählen Sie, welches GEDCOM-Kennzeichen beim Hinzufügen einer neuen externen Kennung erzeugt werden soll."

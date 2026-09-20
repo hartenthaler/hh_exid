@@ -1,5 +1,10 @@
 # hh_exid
 
+![webtrees major version](https://img.shields.io/badge/webtrees-v2.2.x-green)
+[![Module version](https://img.shields.io/badge/version-2.2.6.0-blue)](version.txt)
+[![Downloads](https://img.shields.io/github/downloads/hartenthaler/hh_exid/total?label=downloads)](https://github.com/hartenthaler/hh_exid/releases)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 This webtrees module provides reusable support for external identifiers.
 
 It supports the standard GEDCOM 7 spelling `EXID` and the GEDCOM 5.5.1 custom
@@ -29,6 +34,15 @@ authority URIs as a selection. Use the `+` button next to the field to enter a
 different URI as free text. Existing values that are not in the catalogue are
 shown in the free-text mode automatically, so that they can be preserved and
 edited without being lost.
+
+## Choosing the tag for new identifiers
+
+Administrators can choose in the module configuration whether newly created
+identifiers use the GEDCOM 7 tag `EXID` or the GEDCOM 5.5.1 custom tag
+`_EXID`. The default remains `_EXID` for compatibility with existing webtrees
+installations. Modules that create identifiers can use the public
+`ExidServices::preferredTag()` service; when hh_exid is not active, it returns
+`_EXID` as the safe fallback.
 
 ## Installation
 
