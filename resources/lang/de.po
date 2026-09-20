@@ -101,3 +101,6 @@ msgstr "Der EXID-Autoritätskatalog wurde aktualisiert."
 
 msgid "The EXID authority catalogue could not be updated."
 msgstr "Der EXID-Autoritätskatalog konnte nicht aktualisiert werden."
+
+msgid "The external identifier does not match the selected authority."
+msgstr "Die externe Kennung entspricht nicht dem Muster der ausgewählten Autorität."

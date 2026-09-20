@@ -9,8 +9,10 @@
 - Show the official GEDCOM 7 EXID registry in a compact read-only comparison
   table on the same administration page.
 - Replace the error-prone raw JSON editor with a validated table editor.
+- Validate identifier values against the selected authority pattern before an
+  editor form can be submitted.
 - Render registered EXID links on individual pages as well as shared-place
-  pages.
+  pages, including pages where webtrees uses its core EXID element.
 
 ## 2.2.6.1 - 2026-09-20
 

@@ -103,3 +103,6 @@ msgstr ""
 
 msgid "The EXID authority catalogue could not be updated."
 msgstr ""
+
+msgid "The external identifier does not match the selected authority."
+msgstr ""

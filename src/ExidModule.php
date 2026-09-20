@@ -87,16 +87,19 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     public function bodyContent(): string
     {
         $typeUris = [];
+        $valuePatterns = [];
 
         foreach (ExidServices::catalog()->all() as $authority) {
             foreach ($authority['type_uris'] as $uri) {
                 $typeUris[$uri] = true;
+                $valuePatterns[$uri] = $authority['value_pattern'];
             }
         }
 
         $factLabels = [I18N::translate('External identifier'), 'EXID', '_EXID'];
+        $patternError = I18N::translate('The external identifier does not match the selected authority.');
 
-        return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidFactLabels = ' . json_encode($factLabels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
+        return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidValuePatterns = ' . json_encode($valuePatterns, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidFactLabels = ' . json_encode($factLabels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidPatternError = ' . json_encode($patternError, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
             '<script src="' . e($this->assetUrl('exid-type.js')) . '" defer></script>';
     }
 
