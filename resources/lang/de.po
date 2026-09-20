@@ -99,5 +99,5 @@ msgstr "TYPE-URI"
 msgid "The EXID authority catalogue has been updated."
 msgstr "Der EXID-Autoritätskatalog wurde aktualisiert."
 
-msgid "The EXID authority catalogue could not be updated: %s"
-msgstr "Der EXID-Autoritätskatalog konnte nicht aktualisiert werden: %s"
+msgid "The EXID authority catalogue could not be updated."
+msgstr "Der EXID-Autoritätskatalog konnte nicht aktualisiert werden."

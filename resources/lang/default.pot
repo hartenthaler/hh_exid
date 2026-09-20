@@ -101,5 +101,5 @@ msgstr ""
 msgid "The EXID authority catalogue has been updated."
 msgstr ""
 
-msgid "The EXID authority catalogue could not be updated: %s"
+msgid "The EXID authority catalogue could not be updated."
 msgstr ""
