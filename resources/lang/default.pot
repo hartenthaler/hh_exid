@@ -21,7 +21,7 @@ msgid "External identifiers (EXID)"
 msgstr ""
 
 #: src/ExidModule.php
-msgid "Support for GEDCOM external identifiers in shared places."
+msgid "Support for GEDCOM external identifiers."
 msgstr ""
 
 #: src/Elements/ExtendedExternalIdentifierType.php
@@ -30,4 +30,22 @@ msgstr ""
 
 #: src/Elements/ExtendedExternalIdentifierType.php
 msgid "Toggle URI selection"
+msgstr ""
+
+msgid "The selected EXID tag is invalid."
+msgstr ""
+
+msgid "The EXID tag preference has been updated."
+msgstr ""
+
+msgid "Tag for new external identifiers"
+msgstr ""
+
+msgid "EXID (GEDCOM 7)"
+msgstr ""
+
+msgid "_EXID (GEDCOM 5.5.1)"
+msgstr ""
+
+msgid "Choose which GEDCOM tag should be generated when a new external identifier is added."
 msgstr ""

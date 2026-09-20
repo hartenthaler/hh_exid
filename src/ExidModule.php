@@ -5,24 +5,35 @@ declare(strict_types=1);
 namespace Hartenthaler\Webtrees\Module\ExidModule;
 
 use Fisharebest\Webtrees\Elements\ExternalIdentifier;
+use Fisharebest\Webtrees\FlashMessages;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Module\AbstractModule;
+use Fisharebest\Webtrees\Module\ModuleConfigInterface;
+use Fisharebest\Webtrees\Module\ModuleConfigTrait;
 use Fisharebest\Webtrees\Module\ModuleCustomInterface;
 use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\ModuleGlobalInterface;
 use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Validator;
+use Fisharebest\Webtrees\View;
 use Hartenthaler\Webtrees\Module\ExidModule\Elements\ExtendedExternalIdentifier;
 use Hartenthaler\Webtrees\Module\ExidModule\Elements\ExtendedExternalIdentifierType;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidTypeCatalog;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 use function file_exists;
 
-class ExidModule extends AbstractModule implements ModuleCustomInterface, ModuleGlobalInterface
+class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleGlobalInterface
 {
+    use ModuleConfigTrait;
     use ModuleCustomTrait;
 
     private const MODULE_NAME = 'hh_exid';
     private const GITHUB_USER = 'hartenthaler';
+    private const PREFERENCE_EXID_TAG = 'exid_tag';
+    public const TAG_EXID = 'EXID';
+    public const TAG_LEGACY_EXID = '_EXID';
 
     public function title(): string
     {
@@ -31,7 +42,7 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface, Module
 
     public function description(): string
     {
-        return I18N::translate('Support for GEDCOM external identifiers in shared places.');
+        return I18N::translate('Support for GEDCOM external identifiers.');
     }
 
     public function customModuleAuthorName(): string
@@ -76,6 +87,38 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface, Module
 
         return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
             '<script src="' . e($this->assetUrl('exid-type.js')) . '" defer></script>';
+    }
+
+    public function getAdminAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->layout = 'layouts/administration';
+        View::registerNamespace($this->name(), $this->resourcesFolder() . 'views/');
+
+        return $this->viewResponse($this->name() . '::configuration', [
+            'title' => $this->title(),
+            'description' => $this->description(),
+            'selected_tag' => $this->preferredTag(),
+        ]);
+    }
+
+    public function postAdminAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $tag = Validator::parsedBody($request)->string('exid_tag');
+        if (!in_array($tag, [self::TAG_EXID, self::TAG_LEGACY_EXID], true)) {
+            FlashMessages::addMessage(I18N::translate('The selected EXID tag is invalid.'), 'danger');
+        } else {
+            $this->setPreference(self::PREFERENCE_EXID_TAG, $tag);
+            FlashMessages::addMessage(I18N::translate('The EXID tag preference has been updated.'), 'success');
+        }
+
+        return redirect($this->getConfigLink());
+    }
+
+    public function preferredTag(): string
+    {
+        $tag = $this->getPreference(self::PREFERENCE_EXID_TAG, self::TAG_LEGACY_EXID);
+
+        return in_array($tag, [self::TAG_EXID, self::TAG_LEGACY_EXID], true) ? $tag : self::TAG_LEGACY_EXID;
     }
 
     public function customTranslations(string $language): array
@@ -162,11 +205,13 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface, Module
      */
     protected function customSubTags(): array
     {
+        $tag = $this->preferredTag();
+
         return [
-            'INDI'       => [['EXID', '0:M']],
+            'INDI'       => [[$tag, '0:M']],
             'INDI:EXID'  => [['TYPE', '0:1']],
             'INDI:_EXID' => [['TYPE', '0:1']],
-            '_LOC'       => [['_EXID', '0:M']],
+            '_LOC'       => [[$tag, '0:M']],
             '_LOC:_EXID' => [['TYPE', '0:1']],
             '_LOC:EXID'  => [['TYPE', '0:1']],
         ];
