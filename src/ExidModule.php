@@ -18,11 +18,14 @@ use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\View;
 use Hartenthaler\Webtrees\Module\ExidModule\Elements\ExtendedExternalIdentifier;
 use Hartenthaler\Webtrees\Module\ExidModule\Elements\ExtendedExternalIdentifierType;
+use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\AuthorityCatalogueStorage;
+use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierCatalog;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidTypeCatalog;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use function file_exists;
+use function sprintf;
 
 class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleGlobalInterface
 {
@@ -94,10 +97,15 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         $this->layout = 'layouts/administration';
         View::registerNamespace($this->name(), $this->resourcesFolder() . 'views/');
 
+        $catalogue = AuthorityCatalogueStorage::load();
+
         return $this->viewResponse($this->name() . '::configuration', [
             'title' => $this->title(),
             'description' => $this->description(),
             'selected_tag' => $this->preferredTag(),
+            'authority_catalogue_json' => $catalogue->toJson(),
+            'authority_catalogue_writable' => AuthorityCatalogueStorage::isWritable(),
+            'gedcom_types' => ExidServices::gedcomTypeCatalog()->all(),
         ]);
     }
 
@@ -109,6 +117,18 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         } else {
             $this->setPreference(self::PREFERENCE_EXID_TAG, $tag);
             FlashMessages::addMessage(I18N::translate('The EXID tag preference has been updated.'), 'success');
+        }
+
+        $catalogueJson = Validator::parsedBody($request)->string('authority_catalogue_json');
+
+        try {
+            AuthorityCatalogueStorage::save(ExternalIdentifierCatalog::fromJson($catalogueJson));
+            FlashMessages::addMessage(I18N::translate('The EXID authority catalogue has been updated.'), 'success');
+        } catch (\Throwable $exception) {
+            FlashMessages::addMessage(sprintf(
+                I18N::translate('The EXID authority catalogue could not be updated: %s'),
+                $exception->getMessage(),
+            ), 'danger');
         }
 
         return redirect($this->getConfigLink());

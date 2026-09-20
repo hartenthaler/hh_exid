@@ -1,5 +1,14 @@
 # Change Log
 
+## Next release
+
+- Add an administration editor for the module-owned `exid-authorities.json`
+  catalogue, with validation for URIs, hosts, patterns and duplicate entries.
+- Store the administrator-owned catalogue in webtrees' data directory instead
+  of writing into the installed module directory.
+- Show the official GEDCOM 7 EXID registry in a compact read-only comparison
+  table on the same administration page.
+
 ## 2.2.6.1 - 2026-09-20
 
 - Administrators can choose whether newly added identifiers use the GEDCOM 7

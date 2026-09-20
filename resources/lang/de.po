@@ -47,3 +47,36 @@ msgstr "_EXID (GEDCOM 5.5.1)"
 
 msgid "Choose which GEDCOM tag should be generated when a new external identifier is added."
 msgstr "Wählen Sie, welches GEDCOM-Kennzeichen beim Hinzufügen einer neuen externen Kennung erzeugt werden soll."
+
+msgid "Custom EXID authorities"
+msgstr "Benutzerdefinierte EXID-Autoritäten"
+
+msgid "Edit the module-owned authority catalogue as JSON. It is used in addition to the official GEDCOM 7 registry."
+msgstr "Bearbeiten Sie den JSON-Katalog des Moduls. Er wird zusätzlich zur offiziellen GEDCOM-7-Registry verwendet."
+
+msgid "The authority catalogue in the webtrees data directory is not writable. Adjust its permissions before saving changes."
+msgstr "Der Autoritätskatalog im webtrees-Datenverzeichnis ist nicht beschreibbar. Passen Sie vor dem Speichern dessen Berechtigungen an."
+
+msgid "exid-authorities.json"
+msgstr "exid-authorities.json"
+
+msgid "Each authority must define a key, label, one or more HTTPS TYPE URIs, a value pattern and at least one allowed host. Duplicate TYPE URIs are rejected."
+msgstr "Jede Autorität muss einen Schlüssel, eine Bezeichnung, mindestens eine HTTPS-TYPE-URI, ein Wertmuster und mindestens einen zulässigen Host definieren. Doppelte TYPE-URIs werden abgelehnt."
+
+msgid "GEDCOM 7 EXID registry"
+msgstr "GEDCOM-7-EXID-Registry"
+
+msgid "The official GEDCOM 7 registry is shown for comparison only and cannot be edited here."
+msgstr "Die offizielle GEDCOM-7-Registry wird nur zum Vergleich angezeigt und kann hier nicht bearbeitet werden."
+
+msgid "Name"
+msgstr "Name"
+
+msgid "TYPE URI"
+msgstr "TYPE-URI"
+
+msgid "The EXID authority catalogue has been updated."
+msgstr "Der EXID-Autoritätskatalog wurde aktualisiert."
+
+msgid "The EXID authority catalogue could not be updated: %s"
+msgstr "Der EXID-Autoritätskatalog konnte nicht aktualisiert werden: %s"
