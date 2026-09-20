@@ -25,7 +25,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use function file_exists;
+use function array_filter;
+use function array_map;
+use function array_values;
+use function is_array;
+use function json_encode;
+use function preg_split;
 use function sprintf;
+use function trim;
 
 class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleGlobalInterface
 {
@@ -88,7 +95,9 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             }
         }
 
-        return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
+        $factLabels = [I18N::translate('External identifier'), 'EXID', '_EXID'];
+
+        return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidFactLabels = ' . json_encode($factLabels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
             '<script src="' . e($this->assetUrl('exid-type.js')) . '" defer></script>';
     }
 
@@ -103,7 +112,7 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             'title' => $this->title(),
             'description' => $this->description(),
             'selected_tag' => $this->preferredTag(),
-            'authority_catalogue_json' => $catalogue->toJson(),
+            'authorities' => $catalogue->all(),
             'authority_catalogue_writable' => AuthorityCatalogueStorage::isWritable(),
             'gedcom_types' => ExidServices::gedcomTypeCatalog()->all(),
         ]);
@@ -119,10 +128,8 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             FlashMessages::addMessage(I18N::translate('The EXID tag preference has been updated.'), 'success');
         }
 
-        $catalogueJson = Validator::parsedBody($request)->string('authority_catalogue_json');
-
         try {
-            AuthorityCatalogueStorage::save(ExternalIdentifierCatalog::fromJson($catalogueJson));
+            AuthorityCatalogueStorage::save($this->catalogueFromRequest($request));
             FlashMessages::addMessage(I18N::translate('The EXID authority catalogue has been updated.'), 'success');
         } catch (\Throwable $exception) {
             FlashMessages::addMessage(sprintf(
@@ -132,6 +139,49 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         }
 
         return redirect($this->getConfigLink());
+    }
+
+    private function catalogueFromRequest(ServerRequestInterface $request): ExternalIdentifierCatalog
+    {
+        $body = $request->getParsedBody();
+        $rows = is_array($body) && is_array($body['authorities'] ?? null) ? $body['authorities'] : [];
+        $definitions = [];
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                $definitions[] = [];
+                continue;
+            }
+
+            $definitions[] = [
+                'key'           => trim((string) ($row['key'] ?? '')),
+                'label'         => trim((string) ($row['label'] ?? '')),
+                'type_uris'     => $this->lines($row['type_uris'] ?? ''),
+                'value_pattern' => trim((string) ($row['value_pattern'] ?? '')),
+                'allowed_hosts' => $this->lines($row['allowed_hosts'] ?? ''),
+            ];
+        }
+
+        $json = json_encode(['version' => 1, 'authorities' => $definitions]);
+
+        if (!is_string($json)) {
+            throw new \RuntimeException('The EXID authority catalogue could not be encoded.');
+        }
+
+        return ExternalIdentifierCatalog::fromJson($json);
+    }
+
+    /** @return list<string> */
+    private function lines(mixed $value): array
+    {
+        if (!is_string($value)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(
+            static fn (string $line): string => trim($line),
+            preg_split('/\R/u', $value) ?: [],
+        ), static fn (string $line): bool => $line !== ''));
     }
 
     public function preferredTag(): string

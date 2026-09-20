@@ -86,7 +86,7 @@ final class ExternalIdentifierCatalog
                 || !is_string($definition['value_pattern'] ?? null)
                 || !is_array($definition['allowed_hosts'] ?? null)
             ) {
-                continue;
+                throw new RuntimeException('The EXID authority catalogue contains an invalid authority definition.');
             }
 
             $typeUris = array_values(array_filter($definition['type_uris'], 'is_string'));

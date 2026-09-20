@@ -53,16 +53,37 @@ msgstr ""
 msgid "Custom EXID authorities"
 msgstr ""
 
-msgid "Edit the module-owned authority catalogue as JSON. It is used in addition to the official GEDCOM 7 registry."
+msgid "Manage the module-owned authority catalogue in the table below. It is used in addition to the official GEDCOM 7 registry."
 msgstr ""
 
 msgid "The authority catalogue in the webtrees data directory is not writable. Adjust its permissions before saving changes."
 msgstr ""
 
-msgid "exid-authorities.json"
+msgid "Key"
 msgstr ""
 
-msgid "Each authority must define a key, label, one or more HTTPS TYPE URIs, a value pattern and at least one allowed host. Duplicate TYPE URIs are rejected."
+msgid "Label"
+msgstr ""
+
+msgid "TYPE URIs"
+msgstr ""
+
+msgid "Value pattern"
+msgstr ""
+
+msgid "Allowed hosts"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Add authority"
+msgstr ""
+
+msgid "Enter one TYPE URI or host per line. Each authority must define at least one HTTPS TYPE URI and allowed host. Duplicate TYPE URIs are rejected."
 msgstr ""
 
 msgid "GEDCOM 7 EXID registry"
