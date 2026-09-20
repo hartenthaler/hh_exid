@@ -1,6 +1,6 @@
 {
   "name": "hartenthaler/hh-exid",
-  "description": "GEDCOM external identifier support for webtrees shared places",
+  "description": "GEDCOM external identifier support for webtrees",
   "type": "webtrees-module",
   "license": "GPL-3.0-or-later",
   "require": {
