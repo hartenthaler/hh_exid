@@ -64,7 +64,7 @@ safe fallback when hh_exid is unavailable.
 ### Managing the authority catalogue
 
 The administration page shows the module-owned `exid-authorities.json` seed
-catalogue in an editable JSON field. The active copy is stored as
+catalogue in a table with validated fields for each authority. The active copy is stored as
 `data/hh_exid/exid-authorities.json` in the webtrees data directory, so module
 updates do not overwrite administrator changes. It is intended for reviewed
 additional authorities:

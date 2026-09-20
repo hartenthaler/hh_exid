@@ -8,7 +8,7 @@ use Fisharebest\Webtrees\I18N;
 /** @var string $title */
 /** @var string $description */
 /** @var string $selected_tag */
-/** @var string $authority_catalogue_json */
+/** @var list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>}> $authorities */
 /** @var bool $authority_catalogue_writable */
 /** @var list<array{source_file:string,label:string,language:string,uri:string,documentation:list<string>}> $gedcom_types */
 ?>
@@ -35,19 +35,77 @@ use Fisharebest\Webtrees\I18N;
     </div>
 
     <h2><?= I18N::translate('Custom EXID authorities') ?></h2>
-    <p><?= I18N::translate('Edit the module-owned authority catalogue as JSON. It is used in addition to the official GEDCOM 7 registry.') ?></p>
+    <p><?= I18N::translate('Manage the module-owned authority catalogue in the table below. It is used in addition to the official GEDCOM 7 registry.') ?></p>
     <?php if (!$authority_catalogue_writable) : ?>
         <div class="alert alert-warning">
             <?= I18N::translate('The authority catalogue in the webtrees data directory is not writable. Adjust its permissions before saving changes.') ?>
         </div>
     <?php endif ?>
-    <div class="mb-3">
-        <label class="form-label" for="authority-catalogue-json"><?= I18N::translate('exid-authorities.json') ?></label>
-        <textarea class="form-control font-monospace" id="authority-catalogue-json" name="authority_catalogue_json" rows="18" spellcheck="false"<?= $authority_catalogue_writable ? '' : ' readonly' ?>><?= e($authority_catalogue_json) ?></textarea>
-        <div class="form-text">
-            <?= I18N::translate('Each authority must define a key, label, one or more HTTPS TYPE URIs, a value pattern and at least one allowed host. Duplicate TYPE URIs are rejected.') ?>
-        </div>
+    <div class="table-responsive mb-3">
+        <table class="table table-sm align-middle" id="exid-authority-table">
+            <thead>
+                <tr>
+                    <th><?= I18N::translate('Key') ?></th>
+                    <th><?= I18N::translate('Label') ?></th>
+                    <th><?= I18N::translate('TYPE URIs') ?></th>
+                    <th><?= I18N::translate('Value pattern') ?></th>
+                    <th><?= I18N::translate('Allowed hosts') ?></th>
+                    <th><span class="visually-hidden"><?= I18N::translate('Actions') ?></span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($authorities as $index => $authority) : ?>
+                    <tr data-exid-authority-row>
+                        <td><input class="form-control" name="authorities[<?= e((string) $index) ?>][key]" value="<?= e($authority['key']) ?>" required maxlength="80"></td>
+                        <td><input class="form-control" name="authorities[<?= e((string) $index) ?>][label]" value="<?= e($authority['label']) ?>" required maxlength="200"></td>
+                        <td><textarea class="form-control" name="authorities[<?= e((string) $index) ?>][type_uris]" rows="2" required><?= e(implode("\n", $authority['type_uris'])) ?></textarea></td>
+                        <td><input class="form-control font-monospace" name="authorities[<?= e((string) $index) ?>][value_pattern]" value="<?= e($authority['value_pattern']) ?>" required maxlength="200"></td>
+                        <td><textarea class="form-control" name="authorities[<?= e((string) $index) ?>][allowed_hosts]" rows="2" required><?= e(implode("\n", $authority['allowed_hosts'])) ?></textarea></td>
+                        <td><button class="btn btn-outline-danger" type="button" data-exid-authority-remove><?= I18N::translate('Remove') ?></button></td>
+                    </tr>
+                <?php endforeach ?>
+            </tbody>
+        </table>
     </div>
+    <button class="btn btn-secondary mb-3" type="button" id="exid-authority-add"><?= I18N::translate('Add authority') ?></button>
+    <div class="form-text mb-3">
+        <?= I18N::translate('Enter one TYPE URI or host per line. Each authority must define at least one HTTPS TYPE URI and allowed host. Duplicate TYPE URIs are rejected.') ?>
+    </div>
+
+    <template id="exid-authority-template">
+        <tr data-exid-authority-row>
+            <td><input class="form-control" name="authorities[__INDEX__][key]" required maxlength="80"></td>
+            <td><input class="form-control" name="authorities[__INDEX__][label]" required maxlength="200"></td>
+            <td><textarea class="form-control" name="authorities[__INDEX__][type_uris]" rows="2" required></textarea></td>
+            <td><input class="form-control font-monospace" name="authorities[__INDEX__][value_pattern]" required maxlength="200"></td>
+            <td><textarea class="form-control" name="authorities[__INDEX__][allowed_hosts]" rows="2" required></textarea></td>
+            <td><button class="btn btn-outline-danger" type="button" data-exid-authority-remove><?= I18N::translate('Remove') ?></button></td>
+        </tr>
+    </template>
+
+    <script>
+        (function () {
+            const table = document.querySelector('#exid-authority-table tbody');
+            const template = document.querySelector('#exid-authority-template');
+            const add = document.querySelector('#exid-authority-add');
+            let index = <?= count($authorities) ?>;
+
+            if (!table || !template || !add) {
+                return;
+            }
+
+            add.addEventListener('click', function () {
+                table.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__INDEX__', String(index++)));
+            });
+
+            table.addEventListener('click', function (event) {
+                const button = event.target.closest('[data-exid-authority-remove]');
+                if (button) {
+                    button.closest('[data-exid-authority-row]').remove();
+                }
+            });
+        }());
+    </script>
 
     <h2><?= I18N::translate('GEDCOM 7 EXID registry') ?></h2>
     <p><?= I18N::translate('The official GEDCOM 7 registry is shown for comparison only and cannot be edited here.') ?></p>

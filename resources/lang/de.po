@@ -51,17 +51,38 @@ msgstr "Wählen Sie, welches GEDCOM-Kennzeichen beim Hinzufügen einer neuen ext
 msgid "Custom EXID authorities"
 msgstr "Benutzerdefinierte EXID-Autoritäten"
 
-msgid "Edit the module-owned authority catalogue as JSON. It is used in addition to the official GEDCOM 7 registry."
-msgstr "Bearbeiten Sie den JSON-Katalog des Moduls. Er wird zusätzlich zur offiziellen GEDCOM-7-Registry verwendet."
+msgid "Manage the module-owned authority catalogue in the table below. It is used in addition to the official GEDCOM 7 registry."
+msgstr "Verwalten Sie den Autoritätskatalog des Moduls in der folgenden Tabelle. Er wird zusätzlich zur offiziellen GEDCOM-7-Registry verwendet."
 
 msgid "The authority catalogue in the webtrees data directory is not writable. Adjust its permissions before saving changes."
 msgstr "Der Autoritätskatalog im webtrees-Datenverzeichnis ist nicht beschreibbar. Passen Sie vor dem Speichern dessen Berechtigungen an."
 
-msgid "exid-authorities.json"
-msgstr "exid-authorities.json"
+msgid "Key"
+msgstr "Schlüssel"
 
-msgid "Each authority must define a key, label, one or more HTTPS TYPE URIs, a value pattern and at least one allowed host. Duplicate TYPE URIs are rejected."
-msgstr "Jede Autorität muss einen Schlüssel, eine Bezeichnung, mindestens eine HTTPS-TYPE-URI, ein Wertmuster und mindestens einen zulässigen Host definieren. Doppelte TYPE-URIs werden abgelehnt."
+msgid "Label"
+msgstr "Bezeichnung"
+
+msgid "TYPE URIs"
+msgstr "TYPE-URIs"
+
+msgid "Value pattern"
+msgstr "Wertmuster"
+
+msgid "Allowed hosts"
+msgstr "Zulässige Hosts"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "Remove"
+msgstr "Entfernen"
+
+msgid "Add authority"
+msgstr "Autorität hinzufügen"
+
+msgid "Enter one TYPE URI or host per line. Each authority must define at least one HTTPS TYPE URI and allowed host. Duplicate TYPE URIs are rejected."
+msgstr "Geben Sie pro Zeile eine TYPE-URI oder einen Host ein. Jede Autorität muss mindestens eine HTTPS-TYPE-URI und einen zulässigen Host definieren. Doppelte TYPE-URIs werden abgelehnt."
 
 msgid "GEDCOM 7 EXID registry"
 msgstr "GEDCOM-7-EXID-Registry"
