@@ -44,6 +44,21 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     public const TAG_EXID = 'EXID';
     public const TAG_LEGACY_EXID = '_EXID';
 
+    /**
+     * GEDCOM 7 record types that directly contain IDENTIFIER_STRUCTURE.
+     *
+     * PLACE_STRUCTURE has separate EXID entries and is registered below for
+     * the event contexts supported by webtrees' GEDCOM 7 catalogue.
+     *
+     * @var list<string>
+     */
+    private const EXID_RECORD_TYPES = ['FAM', 'INDI', 'OBJE', 'REPO', 'SNOTE', 'SOUR', 'SUBM'];
+
+    /**
+     * @var list<string>
+     */
+    private const PLACE_EXID_CONTEXTS = ['FAM:*:PLAC', 'INDI:*:PLAC'];
+
     public function title(): string
     {
         return I18N::translate('External identifiers (EXID)');
@@ -87,16 +102,19 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     public function bodyContent(): string
     {
         $typeUris = [];
+        $valuePatterns = [];
 
         foreach (ExidServices::catalog()->all() as $authority) {
             foreach ($authority['type_uris'] as $uri) {
                 $typeUris[$uri] = true;
+                $valuePatterns[$uri] = $authority['value_pattern'];
             }
         }
 
         $factLabels = [I18N::translate('External identifier'), 'EXID', '_EXID'];
+        $patternError = I18N::translate('The external identifier does not match the selected authority.');
 
-        return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidFactLabels = ' . json_encode($factLabels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
+        return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidValuePatterns = ' . json_encode($valuePatterns, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidFactLabels = ' . json_encode($factLabels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidPatternError = ' . json_encode($patternError, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
             '<script src="' . e($this->assetUrl('exid-type.js')) . '" defer></script>';
     }
 
@@ -229,13 +247,14 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     }
 
     /**
-     * Register the EXID variants used by shared-place records.
+     * Register EXID in every GEDCOM record context supported by this module.
      *
-     * webtrees already registers standard GEDCOM 7 EXID elements for the
-     * contexts covered by its core tag catalogue. Shared places use the
-     * Vesta _LOC records and individual records need the same independent
-     * registration for editing. Both the GEDCOM 5.5.1 custom spelling
-     * (_EXID) and the GEDCOM 7 spelling (EXID) are accepted.
+     * The standard IDENTIFIER_STRUCTURE is not limited to INDI and _LOC:
+     * GEDCOM 7 defines it for FAM, INDI, OBJE, REPO, SNOTE, SOUR and SUBM.
+     * PLACE_STRUCTURE has its own EXID entry and is registered for the event
+     * contexts used by webtrees. The Vesta _LOC record is retained as a
+     * webtrees-specific extension. Both EXID and the GEDCOM 5.5.1 custom
+     * spelling (_EXID) remain readable and editable.
      */
     public function boot(): void
     {
@@ -257,16 +276,28 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             $this->exidTypeLabels(),
         );
 
-        return [
-            'INDI:EXID'       => $element(),
-            'INDI:EXID:TYPE'  => $type(),
-            'INDI:_EXID'      => $element(),
-            'INDI:_EXID:TYPE' => $type(),
-            '_LOC:_EXID'      => $element(),
-            '_LOC:EXID'       => $element(),
-            '_LOC:_EXID:TYPE' => $type(),
-            '_LOC:EXID:TYPE'  => $type(),
-        ];
+        $tags = [];
+
+        foreach (self::EXID_RECORD_TYPES as $recordType) {
+            foreach ([self::TAG_EXID, self::TAG_LEGACY_EXID] as $exidTag) {
+                $tags[$recordType . ':' . $exidTag]      = $element();
+                $tags[$recordType . ':' . $exidTag . ':TYPE'] = $type();
+            }
+        }
+
+        foreach (self::PLACE_EXID_CONTEXTS as $placeContext) {
+            foreach ([self::TAG_EXID, self::TAG_LEGACY_EXID] as $exidTag) {
+                $tags[$placeContext . ':' . $exidTag]      = $element();
+                $tags[$placeContext . ':' . $exidTag . ':TYPE'] = $type();
+            }
+        }
+
+        foreach ([self::TAG_EXID, self::TAG_LEGACY_EXID] as $exidTag) {
+            $tags['_LOC:' . $exidTag]      = $element();
+            $tags['_LOC:' . $exidTag . ':TYPE'] = $type();
+        }
+
+        return $tags;
     }
 
     /**
@@ -276,14 +307,25 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     {
         $tag = $this->preferredTag();
 
-        return [
-            'INDI'       => [[$tag, '0:M']],
-            'INDI:EXID'  => [['TYPE', '0:1']],
-            'INDI:_EXID' => [['TYPE', '0:1']],
-            '_LOC'       => [[$tag, '0:M']],
-            '_LOC:_EXID' => [['TYPE', '0:1']],
-            '_LOC:EXID'  => [['TYPE', '0:1']],
-        ];
+        $subtags = [];
+
+        foreach (self::EXID_RECORD_TYPES as $recordType) {
+            $subtags[$recordType] = [[$tag, '0:M']];
+            $subtags[$recordType . ':' . self::TAG_EXID] = [['TYPE', '0:1']];
+            $subtags[$recordType . ':' . self::TAG_LEGACY_EXID] = [['TYPE', '0:1']];
+        }
+
+        foreach (self::PLACE_EXID_CONTEXTS as $placeContext) {
+            $subtags[$placeContext] = [[$tag, '0:M']];
+            $subtags[$placeContext . ':' . self::TAG_EXID] = [['TYPE', '0:1']];
+            $subtags[$placeContext . ':' . self::TAG_LEGACY_EXID] = [['TYPE', '0:1']];
+        }
+
+        $subtags['_LOC'] = [[$tag, '0:M']];
+        $subtags['_LOC:' . self::TAG_EXID] = [['TYPE', '0:1']];
+        $subtags['_LOC:' . self::TAG_LEGACY_EXID] = [['TYPE', '0:1']];
+
+        return $subtags;
     }
 
     /** @return array<string,string> */
