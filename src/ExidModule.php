@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Hartenthaler\Webtrees\Module\ExidModule;
 
-use Fisharebest\Localization\Translation;
 use Fisharebest\Webtrees\Elements\ExternalIdentifier;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Module\AbstractModule;
@@ -83,7 +82,38 @@ class ExidModule extends AbstractModule implements ModuleCustomInterface, Module
     {
         $file = $this->resourcesFolder() . 'lang/' . $language . '.mo';
 
-        return file_exists($file) ? (new Translation($file))->asArray() : [];
+        if (!file_exists($file)) {
+            return [];
+        }
+
+        // webtrees 2.3 moved the MO reader into its own I18N namespace and
+        // changed it to a stream-based factory. Keep the webtrees 2.2 class
+        // as a fallback so the module remains compatible with both versions.
+        $webtreesTranslation = 'Fisharebest\\Webtrees\\I18N\\Translation';
+        if (class_exists($webtreesTranslation) && method_exists($webtreesTranslation, 'fromMoStream')) {
+            $stream = fopen($file, 'rb');
+            if ($stream === false) {
+                return [];
+            }
+            try {
+                return $webtreesTranslation::fromMoStream($stream)->toArray();
+            } catch (\Throwable) {
+                return [];
+            } finally {
+                fclose($stream);
+            }
+        }
+
+        $legacyTranslation = 'Fisharebest\\Localization\\Translation';
+        if (class_exists($legacyTranslation)) {
+            try {
+                return (new $legacyTranslation($file))->asArray();
+            } catch (\Throwable) {
+                return [];
+            }
+        }
+
+        return [];
     }
 
     /**

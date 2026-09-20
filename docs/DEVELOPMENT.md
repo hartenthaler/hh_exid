@@ -18,7 +18,7 @@ Test-WebtreesModule.ps1 -ModulePath .
 
 ## Translations
 
-Module-specific strings belong in PO files. Compile every changed PO file to its MO counterpart. Strings already translated by webtrees should be called through `MoreI18N`, keeping them out of the module catalog.
+Module-specific strings belong in PO files. Compile every changed PO file to its MO counterpart. Strings already translated by webtrees should be called through `MoreI18N`, keeping them out of the module catalog. The module reads MO files through the webtrees 2.3 `Fisharebest\\Webtrees\\I18N\\Translation` API and falls back to the webtrees 2.2 `Fisharebest\\Localization\\Translation` API.
 
 ## Releases
 
