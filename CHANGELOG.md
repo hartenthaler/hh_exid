@@ -5,6 +5,11 @@
 
 ## 2.2.6.2 - 2026-09-21
 
+- Added an administration editor for the module's EXID authority catalogue.
+  It validates URIs, hosts, identifier patterns and duplicates and stores the
+  administrator-owned copy in webtrees' data directory.
+- Added a compact, read-only comparison table for the official GEDCOM 7 EXID
+  registry.
 - Registered both `EXID` and `_EXID` across all GEDCOM record contexts supported
   by the standard: `FAM`, `INDI`, `OBJE`, `REPO`, `SNOTE`, `SOUR` and `SUBM`.
 - Extended support to the supported place-structure contexts and retained
