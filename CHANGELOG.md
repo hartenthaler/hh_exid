@@ -13,6 +13,9 @@
   editor form can be submitted.
 - Render registered EXID links on individual pages as well as shared-place
   pages, including pages where webtrees uses its core EXID element.
+- Register both EXID spellings across all GEDCOM record contexts supported by
+  the standard (FAM, INDI, OBJE, REPO, SNOTE, SOUR and SUBM), including the
+  supported place-structure contexts; document the complete context matrix.
 
 ## 2.2.6.1 - 2026-09-20
 

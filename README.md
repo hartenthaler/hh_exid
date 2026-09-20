@@ -10,6 +10,7 @@ This webtrees module provides support for external identifiers.
 ## Contents
 
 * [For users](#for-users)
+* [Where EXID can occur](#where-exid-can-occur)
 * [Editing the TYPE value](#editing-the-type-value)
 * [For administrators](#for-administrators)
 * [Choosing the tag for new identifiers](#choosing-the-tag-for-new-identifiers)
@@ -40,6 +41,21 @@ The stored `TYPE` URI is the only authority information used for links: the
 identifier value is appended directly to that URI after it has passed the
 allow-list and value validation. If no `TYPE` is present, no link is created.
 Unknown authorities remain escaped text, and multiple identifiers are preserved.
+
+### Where EXID can occur
+
+GEDCOM 7 defines the reusable identifier structure for family, individual,
+multimedia, repository, shared-note, source and submitter records (`FAM`,
+`INDI`, `OBJE`, `REPO`, `SNOTE`, `SOUR` and `SUBM`). Place structures attached
+to family and individual events can also carry an `EXID`. The module supports
+these contexts as well as webtrees/Vesta shared-place records (`_LOC`). Both
+the standard `EXID` tag and the GEDCOM 5.5.1 custom spelling `_EXID` are
+accepted in each supported context. A normal `NOTE` record is not itself an
+identifier record; the shared-note record is `SNOTE`.
+
+The complete context matrix and the distinction between GEDCOM-standard and
+webtrees-specific contexts are documented in
+[docs/gedcom-exid-contexts.md](docs/gedcom-exid-contexts.md).
 
 ### Editing the TYPE value
 
