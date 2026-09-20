@@ -3,7 +3,7 @@
 This webtrees module provides reusable support for external identifiers.
 
 It supports the standard GEDCOM 7 spelling `EXID` and the GEDCOM 5.5.1 custom
-spelling `_EXID`. Each identifier may have one `TYPE` child containing the URI
+spelling `_EXID`. Each identifier may have one `TYPE` subtag containing the URI
 of the external authority.
 
 ```gedcom
@@ -14,17 +14,13 @@ of the external authority.
 The stored `TYPE` URI is the only authority information used for links: the
 identifier value is appended directly to that URI after it has passed the
 allow-list and value validation. If no `TYPE` is present, no link is created.
-Unknown authorities remain escaped text, and multiple identifiers are preserved. The
-identifier value is never classified by its spelling (for example, a `Q` value
-is not assumed to belong to a particular provider).
+Unknown authorities remain escaped text, and multiple identifiers are preserved.
 
 ## Features
 
 - registers the supported `EXID` and `_EXID` structures, including `TYPE`;
-- parses typed identifiers without guessing an authority from the value;
 - provides safe links for known authorities;
 - keeps the official GEDCOM 7 registry snapshot separate from the link allow-list;
-- uses the standard webtrees PO/MO translation system.
 
 ## Editing the TYPE value
 
@@ -33,9 +29,6 @@ authority URIs as a selection. Use the `+` button next to the field to enter a
 different URI as free text. Existing values that are not in the catalogue are
 shown in the free-text mode automatically, so that they can be preserved and
 edited without being lost.
-
-The module is independent of provider modules. It can be used as a common
-foundation by other webtrees modules, but it does not require them.
 
 ## Installation
 
