@@ -34,6 +34,15 @@ migration or reset path for incompatible changes; never silently discard the
 administrator's data. The data-directory copy belongs in the site's normal
 backup and migration process.
 
+The seed contains a `defaults_version` number. When this number increases,
+`AuthorityCatalogueStorage` adds only bundled authority definitions whose keys
+are not already present in the administrator-owned copy. It then stores the
+new version. Existing definitions are never overwritten, and an administrator
+can remove a bundled authority after the migration without it being restored on
+every request. A future seed change that adds another bundled authority must
+increase `defaults_version` and be tested against an existing data-directory
+copy.
+
 ## Releases
 
 Keep meaningful user-facing changes compared with the previous development

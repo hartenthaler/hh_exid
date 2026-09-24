@@ -33,12 +33,15 @@ final class ExternalIdentifierCatalog
     /** @var list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>}> */
     private array $definitions;
 
+    private int $defaultsVersion;
+
     /**
      * @param list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>}> $definitions
      */
-    public function __construct(array $definitions)
+    public function __construct(array $definitions, int $defaultsVersion = 1)
     {
         $this->definitions = $definitions;
+        $this->defaultsVersion = $defaultsVersion;
     }
 
     public static function fromJsonFile(string $filename): self
@@ -73,6 +76,11 @@ final class ExternalIdentifierCatalog
 
         if (($data['version'] ?? null) !== 1) {
             throw new RuntimeException('The EXID authority catalogue must use version 1.');
+        }
+
+        $defaultsVersion = $data['defaults_version'] ?? 1;
+        if (!is_int($defaultsVersion) || $defaultsVersion < 1 || $defaultsVersion > 1000) {
+            throw new RuntimeException('The EXID authority catalogue contains an invalid defaults version.');
         }
 
         $definitions = [];
@@ -129,14 +137,15 @@ final class ExternalIdentifierCatalog
             ];
         }
 
-        return new self($definitions);
+        return new self($definitions, $defaultsVersion);
     }
 
     public function toJson(): string
     {
         $json = json_encode([
-            'version'     => 1,
-            'authorities' => $this->definitions,
+            'version'         => 1,
+            'defaults_version' => $this->defaultsVersion,
+            'authorities'     => $this->definitions,
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         if (!is_string($json)) {
@@ -144,6 +153,35 @@ final class ExternalIdentifierCatalog
         }
 
         return $json . "\n";
+    }
+
+    /**
+     * Add bundled defaults from a newer seed without changing administrator
+     * definitions. A migration is applied only once for each seed version;
+     * this also means that an administrator can deliberately remove a
+     * bundled authority after the migration.
+     */
+    public function mergeMissingDefaults(self $defaults): bool
+    {
+        if ($this->defaultsVersion >= $defaults->defaultsVersion) {
+            return false;
+        }
+
+        $knownKeys = [];
+        foreach ($this->definitions as $definition) {
+            $knownKeys[$definition['key']] = true;
+        }
+
+        foreach ($defaults->definitions as $definition) {
+            if (!isset($knownKeys[$definition['key']])) {
+                $this->definitions[] = $definition;
+                $knownKeys[$definition['key']] = true;
+            }
+        }
+
+        $this->defaultsVersion = $defaults->defaultsVersion;
+
+        return true;
     }
 
     public function mergeRegistry(GedcomExidTypeCatalog $registry): self
