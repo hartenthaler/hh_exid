@@ -24,12 +24,23 @@ final class AuthorityCatalogueStorage
     public static function load(): ExternalIdentifierCatalog
     {
         $filesystem = Registry::filesystem()->data(self::DATA_DIRECTORY);
+        $seed = ExternalIdentifierCatalog::fromJsonFile(__DIR__ . '/../../resources/config/exid-authorities.json');
 
         if ($filesystem->fileExists(self::DATA_FILE)) {
-            return ExternalIdentifierCatalog::fromJson($filesystem->read(self::DATA_FILE));
-        }
+            $catalogue = ExternalIdentifierCatalog::fromJson($filesystem->read(self::DATA_FILE));
 
-        $catalogue = ExternalIdentifierCatalog::fromJsonFile(__DIR__ . '/../../resources/config/exid-authorities.json');
+            if ($catalogue->mergeMissingDefaults($seed)) {
+                // A migration failure must not prevent the module from using
+                // the migrated in-memory catalogue during this request.
+                try {
+                    self::save($catalogue);
+                } catch (\Throwable) {
+                    // The next request will retry the migration.
+                }
+            }
+
+            return $catalogue;
+        }
 
         // Seed the data directory once.  A failed seed write must not prevent
         // the module from working with its bundled defaults.

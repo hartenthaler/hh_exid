@@ -88,6 +88,11 @@ each entry defines its label, one or more `TYPE` URIs, the accepted identifier
 pattern and the allowed link host. The module validates the JSON and rejects
 duplicate or unsafe definitions before replacing the file atomically.
 
+When a later module version adds new bundled default authorities, a versioned
+migration adds only missing authority keys to the active copy. Existing
+administrator definitions, including deliberately removed bundled entries,
+are not overwritten.
+
 The official GEDCOM 7 `gedcom-exid-types.json` snapshot is displayed below it in
 a compact, read-only table. It is maintained from the FamilySearch registry and
 cannot be changed through the administration page.
