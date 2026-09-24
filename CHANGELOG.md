@@ -2,6 +2,10 @@
 
 ## Next release
 
+- Added language-specific Wikipedia authority URIs for safe clickable links to
+  Wikipedia page names stored as EXID values.
+- Existing administrator-owned authority catalogues now receive new bundled
+  default authorities through a versioned, non-destructive migration.
 
 ## 2.2.6.2 - 2026-09-21
 
