@@ -43,6 +43,33 @@ every request. A future seed change that adds another bundled authority must
 increase `defaults_version` and be tested against an existing data-directory
 copy.
 
+## Context-aware authority selection
+
+Each authority definition may contain a `contexts` list. In the admin form it
+may be entered one per line or comma-separated. It limits the TYPE
+URIs offered by the editor to the current GEDCOM record context. Use the
+record tag (`INDI`, `FAM`, `OBJE`, `REPO`, `SNOTE`, `SOUR` or `SUBM`), `PLAC`
+for an EXID attached to a family/individual place structure, or `_LOC` for a
+webtrees shared place. The wildcard `*` applies everywhere. For every explicit
+context list, `SNOTE` is added automatically; only `*` suppresses the explicit
+list because it already includes every context. Missing or empty
+metadata is normalized to `*`, preserving older administrator-owned catalogues
+and unclassified custom authorities.
+
+Mappings for the bundled GEDCOM registry are centralized in
+`src/Infrastructure/ExidContextCatalog.php`. Extend that mapping when a new
+registry source file needs a narrower context; do not duplicate mappings in
+the module or view. The administration table exposes the contexts so an
+administrator can review or refine them without editing JSON directly.
+The optional `value_pattern` field is a regular expression that must match an
+identifier before the linker creates a URL. If it is empty, the catalog uses
+the safe default for printable values up to 200 characters. Screenshots for
+this interface belong in `docs/screenshots/`; use anonymized test data and
+stable filenames.
+Those edits are stored separately in `data/hh_exid/gedcom-exid-contexts.json`;
+the registry snapshot remains read-only. Resetting the registry contexts removes
+the overrides and reactivates the central defaults.
+
 ## Releases
 
 Keep meaningful user-facing changes compared with the previous development

@@ -11,6 +11,7 @@ use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierCat
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierLinker;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierParser;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidTypeCatalog;
+use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidContextStorage;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\AuthorityCatalogueStorage;
 
 /**
@@ -24,7 +25,7 @@ final class ExidServices
     public static function catalog(): ExternalIdentifierCatalog
     {
         return self::$catalog ??= AuthorityCatalogueStorage::load()
-            ->mergeRegistry(self::gedcomTypeCatalog());
+            ->mergeRegistry(self::gedcomTypeCatalog(), GedcomExidContextStorage::load());
     }
 
     public static function linker(): ExternalIdentifierLinker

@@ -72,6 +72,9 @@ msgstr "Wertmuster"
 msgid "Allowed hosts"
 msgstr "Zulässige Hosts"
 
+msgid "Compatible contexts"
+msgstr "Kompatible Kontexte"
+
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -81,14 +84,32 @@ msgstr "Entfernen"
 msgid "Add authority"
 msgstr "Autorität hinzufügen"
 
-msgid "Enter one TYPE URI or host per line. Each authority must define at least one HTTPS TYPE URI and allowed host. Duplicate TYPE URIs are rejected."
-msgstr "Geben Sie pro Zeile eine TYPE-URI oder einen Host ein. Jede Autorität muss mindestens eine HTTPS-TYPE-URI und einen zulässigen Host definieren. Doppelte TYPE-URIs werden abgelehnt."
+msgid "Enter one value per line in each field. Compatible contexts accept comma-separated values such as INDI, PLAC, _LOC or *. Duplicate TYPE URIs are rejected."
+msgstr "Geben Sie in jedem Feld einen Wert pro Zeile ein. Bei den kompatiblen Kontexten sind kommagetrennte Werte wie INDI, PLAC, _LOC oder * möglich. Doppelte TYPE-URIs werden abgelehnt."
+
+msgid "The Value pattern field is optional; an empty value accepts any safe identifier value."
+msgstr "Das Feld Wertmuster ist optional. Ein leerer Wert akzeptiert jede sichere Kennung."
 
 msgid "GEDCOM 7 EXID registry"
 msgstr "GEDCOM-7-EXID-Registry"
 
 msgid "The official GEDCOM 7 registry is shown for comparison only and cannot be edited here."
 msgstr "Die offizielle GEDCOM-7-Registry wird nur zum Vergleich angezeigt und kann hier nicht bearbeitet werden."
+
+msgid "The official GEDCOM 7 registry is shown for comparison only. Its compatible contexts can be assigned here; the registry data itself cannot be edited."
+msgstr "Die offizielle GEDCOM-7-Registry wird nur zum Vergleich angezeigt. Ihre kompatiblen Kontexte können hier zugeordnet werden; die Registry-Daten selbst können nicht bearbeitet werden."
+
+msgid "Reset registry contexts to defaults"
+msgstr "Registry-Kontexte auf Standardwerte zurücksetzen"
+
+msgid "The GEDCOM 7 registry context assignments have been updated."
+msgstr "Die Kontextzuordnungen der GEDCOM-7-Registry wurden aktualisiert."
+
+msgid "The GEDCOM 7 registry context assignments were reset to their defaults."
+msgstr "Die Kontextzuordnungen der GEDCOM-7-Registry wurden auf die Standardwerte zurückgesetzt."
+
+msgid "The GEDCOM 7 registry context assignments could not be updated."
+msgstr "Die Kontextzuordnungen der GEDCOM-7-Registry konnten nicht aktualisiert werden."
 
 msgid "Name"
 msgstr "Name"

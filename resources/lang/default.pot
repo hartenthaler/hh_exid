@@ -74,6 +74,9 @@ msgstr ""
 msgid "Allowed hosts"
 msgstr ""
 
+msgid "Compatible contexts"
+msgstr ""
+
 msgid "Actions"
 msgstr ""
 
@@ -83,13 +86,31 @@ msgstr ""
 msgid "Add authority"
 msgstr ""
 
-msgid "Enter one TYPE URI or host per line. Each authority must define at least one HTTPS TYPE URI and allowed host. Duplicate TYPE URIs are rejected."
+msgid "Enter one value per line in each field. Compatible contexts accept comma-separated values such as INDI, PLAC, _LOC or *. Duplicate TYPE URIs are rejected."
+msgstr ""
+
+msgid "The Value pattern field is optional; an empty value accepts any safe identifier value."
 msgstr ""
 
 msgid "GEDCOM 7 EXID registry"
 msgstr ""
 
 msgid "The official GEDCOM 7 registry is shown for comparison only and cannot be edited here."
+msgstr ""
+
+msgid "The official GEDCOM 7 registry is shown for comparison only. Its compatible contexts can be assigned here; the registry data itself cannot be edited."
+msgstr ""
+
+msgid "Reset registry contexts to defaults"
+msgstr ""
+
+msgid "The GEDCOM 7 registry context assignments have been updated."
+msgstr ""
+
+msgid "The GEDCOM 7 registry context assignments were reset to their defaults."
+msgstr ""
+
+msgid "The GEDCOM 7 registry context assignments could not be updated."
 msgstr ""
 
 msgid "Name"

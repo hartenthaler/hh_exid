@@ -2,6 +2,12 @@
 
 ## Next release
 
+- Added context-aware EXID TYPE selection for GEDCOM record types and place
+  contexts, with automatic `SNOTE` support and `_LOC`/`PLAC` handling.
+- Added administrator assignment and reset controls for compatible contexts of
+  the read-only GEDCOM 7 EXID registry.
+- Made the authority value pattern optional; an empty pattern accepts safe
+  identifier values using the module's default validation.
 - Added language-specific Wikipedia authority URIs for safe clickable links to
   Wikipedia page names stored as EXID values.
 - Existing administrator-owned authority catalogues now receive new bundled

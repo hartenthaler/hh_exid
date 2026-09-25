@@ -30,13 +30,15 @@ use const JSON_UNESCAPED_SLASHES;
  */
 final class ExternalIdentifierCatalog
 {
-    /** @var list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>}> */
+    private const DEFAULT_VALUE_PATTERN = '[^\x00-\x1F\x7F]{1,200}';
+
+    /** @var list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>,contexts:list<string>}> */
     private array $definitions;
 
     private int $defaultsVersion;
 
     /**
-     * @param list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>}> $definitions
+     * @param list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>,contexts:list<string>}> $definitions
      */
     public function __construct(array $definitions, int $defaultsVersion = 1)
     {
@@ -91,7 +93,6 @@ final class ExternalIdentifierCatalog
                 || !is_string($definition['key'] ?? null)
                 || !is_string($definition['label'] ?? null)
                 || !is_array($definition['type_uris'] ?? null)
-                || !is_string($definition['value_pattern'] ?? null)
                 || !is_array($definition['allowed_hosts'] ?? null)
             ) {
                 throw new RuntimeException('The EXID authority catalogue contains an invalid authority definition.');
@@ -99,11 +100,21 @@ final class ExternalIdentifierCatalog
 
             $typeUris = array_values(array_filter($definition['type_uris'], 'is_string'));
             $hosts    = array_values(array_filter($definition['allowed_hosts'], 'is_string'));
+            $valuePattern = $definition['value_pattern'] ?? self::DEFAULT_VALUE_PATTERN;
+
+            if (!is_string($valuePattern)) {
+                throw new RuntimeException('The EXID authority catalogue contains an invalid value pattern.');
+            }
+
+            $valuePattern = trim($valuePattern);
+            if ($valuePattern === '') {
+                $valuePattern = self::DEFAULT_VALUE_PATTERN;
+            }
 
             if ($typeUris === [] || $hosts === []
                 || preg_match('/\A[a-z0-9][a-z0-9:_-]{0,79}\z/', $definition['key']) !== 1
                 || strlen($definition['label']) > 200
-                || strlen($definition['value_pattern']) > 200
+                || strlen($valuePattern) > 200
             ) {
                 throw new RuntimeException('The EXID authority catalogue contains an invalid authority definition.');
             }
@@ -124,7 +135,7 @@ final class ExternalIdentifierCatalog
             }
 
             // Compile the configured expression before it can be saved.
-            if (@preg_match('/\A(?:' . $definition['value_pattern'] . ')\z/u', '') === false) {
+            if (@preg_match('/\A(?:' . $valuePattern . ')\z/u', '') === false) {
                 throw new RuntimeException('The EXID authority catalogue contains an invalid value pattern.');
             }
 
@@ -132,8 +143,9 @@ final class ExternalIdentifierCatalog
                 'key'           => $definition['key'],
                 'label'         => $definition['label'],
                 'type_uris'     => $typeUris,
-                'value_pattern' => $definition['value_pattern'],
+                'value_pattern' => $valuePattern,
                 'allowed_hosts' => $hosts,
+                'contexts'      => ExidContextCatalog::normalize($definition['contexts'] ?? null),
             ];
         }
 
@@ -184,7 +196,8 @@ final class ExternalIdentifierCatalog
         return true;
     }
 
-    public function mergeRegistry(GedcomExidTypeCatalog $registry): self
+    /** @param array<string,list<string>> $contextOverrides */
+    public function mergeRegistry(GedcomExidTypeCatalog $registry, array $contextOverrides = []): self
     {
         foreach ($registry->all() as $type) {
             $uri   = trim($type['uri']);
@@ -215,15 +228,16 @@ final class ExternalIdentifierCatalog
                 'key'           => 'gedcom:' . $type['source_file'],
                 'label'         => $type['label'],
                 'type_uris'     => [$uri],
-                'value_pattern' => '[^\x00-\x1F\x7F]{1,200}',
+                'value_pattern' => self::DEFAULT_VALUE_PATTERN,
                 'allowed_hosts' => [$parts['host']],
+                'contexts'      => ExidContextCatalog::normalize($contextOverrides[$uri] ?? ExidContextCatalog::registryContexts($type['source_file'])),
             ];
         }
 
         return $this;
     }
 
-    /** @return array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>}|null */
+    /** @return array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>,contexts:list<string>}|null */
     public function definition(string $typeUri): ?array
     {
         $typeUri = trim($typeUri);
@@ -268,10 +282,19 @@ final class ExternalIdentifierCatalog
         return $url;
     }
 
-    /** @return list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>}> */
+    /** @return list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>,contexts:list<string>}> */
     public function all(): array
     {
         return $this->definitions;
+    }
+
+    /** @return list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>,contexts:list<string>}> */
+    public function forContext(string $context): array
+    {
+        return array_values(array_filter(
+            $this->definitions,
+            static fn (array $definition): bool => ExidContextCatalog::applies($definition, $context),
+        ));
     }
 
     private function sameUri(string $left, string $right): bool
