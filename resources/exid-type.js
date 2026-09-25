@@ -1,6 +1,22 @@
 (function () {
     'use strict';
 
+    function readJsonAttribute(script, name, fallback) {
+        try {
+            const value = script?.dataset[name];
+
+            return value ? JSON.parse(value) : fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    const configurationScript = document.querySelector('script[data-hh-exid-type-uris]');
+    window.hhExidTypeUris = readJsonAttribute(configurationScript, 'hhExidTypeUris', window.hhExidTypeUris || []);
+    window.hhExidValuePatterns = readJsonAttribute(configurationScript, 'hhExidValuePatterns', window.hhExidValuePatterns || {});
+    window.hhExidFactLabels = readJsonAttribute(configurationScript, 'hhExidFactLabels', window.hhExidFactLabels || []);
+    window.hhExidPatternError = configurationScript?.dataset.hhExidPatternError || window.hhExidPatternError || '';
+
     function knownTypeUri(text) {
         const knownTypeUris = window.hhExidTypeUris || [];
         const candidate = String(text || '');
@@ -134,6 +150,59 @@
         });
     }
 
+    // webtrees loads some record tabs (including the individual facts tab)
+    // asynchronously.  The initial DOM pass therefore cannot see every
+    // EXID row.  Re-run the same idempotent pass when a tab is inserted.
+    let processing = false;
+    let observer = null;
+
+    function processDocument() {
+        if (processing) {
+            return;
+        }
+
+        processing = true;
+
+        // Do not observe the DOM mutations caused by linkValue() itself.
+        observer?.disconnect();
+
+        try {
+            initializeValueValidation();
+            linkifyExternalIdentifiers();
+        } finally {
+            processing = false;
+
+            if (observer && document.body) {
+                observer.observe(document.body, {childList: true, subtree: true});
+            }
+        }
+    }
+
+    function observeDynamicContent() {
+        if (!document.body || typeof MutationObserver === 'undefined') {
+            return;
+        }
+
+        function containsExternalIdentifier(node) {
+            if (node.nodeType !== Node.ELEMENT_NODE) {
+                return false;
+            }
+
+            return node.matches('[data-exid-value], .wt-fact, .wt-facts-table, .wt-tab-facts') ||
+                Boolean(node.querySelector('[data-exid-value], .wt-fact, .wt-facts-table, .wt-tab-facts'));
+        }
+
+        observer = new MutationObserver(function (mutations) {
+            if (!processing && mutations.some(function (mutation) {
+                return Array.from(mutation.addedNodes).some(containsExternalIdentifier);
+            })) {
+                processDocument();
+            }
+        });
+
+        observer.observe(document.body, {childList: true, subtree: true});
+    }
+
     function toggle(control) {
         const select = control.querySelector('[data-exid-type-select]');
         const custom = control.querySelector('[data-exid-type-custom]');
@@ -198,11 +267,11 @@
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
-            initializeValueValidation();
-            linkifyExternalIdentifiers();
+            processDocument();
+            observeDynamicContent();
         });
     } else {
-        initializeValueValidation();
-        linkifyExternalIdentifiers();
+        processDocument();
+        observeDynamicContent();
     }
 }());
