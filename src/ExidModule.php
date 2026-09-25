@@ -114,8 +114,14 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         $factLabels = [I18N::translate('External identifier'), 'EXID', '_EXID'];
         $patternError = I18N::translate('The external identifier does not match the selected authority.');
 
-        return '<script>window.hhExidTypeUris = ' . json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidValuePatterns = ' . json_encode($valuePatterns, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidFactLabels = ' . json_encode($factLabels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '; window.hhExidPatternError = ' . json_encode($patternError, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>' .
-            '<script src="' . e($this->assetUrl('exid-type.js')) . '" defer></script>';
+        // Keep configuration on the external script element.  Inline scripts
+        // can be blocked by a site's Content-Security-Policy, while data
+        // attributes are available to the module asset without relaxing CSP.
+        return '<script src="' . e($this->assetUrl('exid-type.js')) . '"' .
+            ' data-hh-exid-type-uris="' . e((string) json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)) . '"' .
+            ' data-hh-exid-value-patterns="' . e((string) json_encode($valuePatterns, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)) . '"' .
+            ' data-hh-exid-fact-labels="' . e((string) json_encode($factLabels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)) . '"' .
+            ' data-hh-exid-pattern-error="' . e($patternError) . '" defer></script>';
     }
 
     public function getAdminAction(ServerRequestInterface $request): ResponseInterface
