@@ -15,6 +15,7 @@ This webtrees module provides support for external identifiers.
 * [For administrators](#for-administrators)
 * [Choosing the tag for new identifiers](#choosing-the-tag-for-new-identifiers)
 * [Managing the authority catalogue](#managing-the-authority-catalogue)
+* [Screenshots](#screenshots)
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Security and privacy](#security-and-privacy)
@@ -109,6 +110,16 @@ comma-separated list. `SNOTE` is automatically included in every explicit
 context list, because a shared note may refer to any EXID authority. An empty
 context list is treated as `*`, so an
 unclassified or custom authority remains available instead of being hidden.
+
+## Screenshots
+
+The following screenshots show the module in webtrees. The first shows EXID
+values in a shared-place record; the second shows the administrator interface
+for the authority catalogue and the compatible GEDCOM contexts.
+
+![EXID values in a shared-place record](docs/screenshots/screenshot1.jpg)
+
+![EXID authority catalogue and context configuration](docs/screenshots/screenshot_admin.jpg)
 
 ### Requirements
 
