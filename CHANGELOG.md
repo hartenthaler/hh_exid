@@ -1,6 +1,6 @@
 # Change Log
 
-## Next release
+## 2.2.6.3 - 2026-09-26
 
 - Added context-aware EXID TYPE selection for GEDCOM record types and place
   contexts, with automatic `SNOTE` support and `_LOC`/`PLAC` handling.
