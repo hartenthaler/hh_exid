@@ -45,3 +45,18 @@ The authoritative specification is the
 [FamilySearch GEDCOM 7 specification](https://gedcom.io/specifications/FamilySearchGEDCOMv7.html),
 especially `IDENTIFIER_STRUCTURE` and `PLACE_STRUCTURE`. The concrete webtrees
 tag catalogue is `app/CustomTags/Gedcom7.php` in the webtrees source tree.
+
+## Authority filtering
+
+The optional `contexts` metadata in the module authority catalogue uses the
+same record names and is stored as a JSON array. In the admin form values may
+be entered one per line or comma-separated. `PLAC` identifies EXID values attached to a place
+structure, while `_LOC` identifies a webtrees shared-place record. The wildcard
+`*` (also used when metadata is absent) keeps an authority available in every
+context. For an explicit list, `SNOTE` is added automatically because a shared
+note can refer to any EXID authority. The mapping from FamilySearch registry filenames to these contexts is
+maintained centrally in `src/Infrastructure/ExidContextCatalog.php`.
+Administrators may override these defaults in the module configuration. The
+overrides are stored separately from the read-only registry snapshot in
+`data/hh_exid/gedcom-exid-contexts.json`; resetting them restores the central
+defaults.

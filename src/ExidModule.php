@@ -19,12 +19,14 @@ use Fisharebest\Webtrees\View;
 use Hartenthaler\Webtrees\Module\ExidModule\Elements\ExtendedExternalIdentifier;
 use Hartenthaler\Webtrees\Module\ExidModule\Elements\ExtendedExternalIdentifierType;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\AuthorityCatalogueStorage;
+use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExidContextCatalog;
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierCatalog;
-use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidTypeCatalog;
+use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidContextStorage;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use function file_exists;
+use function array_key_exists;
 use function array_filter;
 use function array_map;
 use function array_values;
@@ -130,6 +132,14 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         View::registerNamespace($this->name(), $this->resourcesFolder() . 'views/');
 
         $catalogue = AuthorityCatalogueStorage::load();
+        $gedcomTypes = ExidServices::gedcomTypeCatalog()->all();
+        $contextOverrides = GedcomExidContextStorage::load();
+
+        foreach ($gedcomTypes as $index => $type) {
+            $gedcomTypes[$index]['contexts'] = ExidContextCatalog::normalize(
+                $contextOverrides[$type['uri']] ?? ExidContextCatalog::registryContexts($type['source_file']),
+            );
+        }
 
         return $this->viewResponse($this->name() . '::configuration', [
             'title' => $this->title(),
@@ -137,7 +147,7 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             'selected_tag' => $this->preferredTag(),
             'authorities' => $catalogue->all(),
             'authority_catalogue_writable' => AuthorityCatalogueStorage::isWritable(),
-            'gedcom_types' => ExidServices::gedcomTypeCatalog()->all(),
+            'gedcom_types' => $gedcomTypes,
         ]);
     }
 
@@ -161,7 +171,43 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             );
         }
 
+        try {
+            $body = $request->getParsedBody();
+            $resetContexts = Validator::parsedBody($request)->boolean('reset_gedcom_contexts', false);
+            $hasContexts = is_array($body) && array_key_exists('gedcom_contexts', $body);
+
+            if ($resetContexts) {
+                GedcomExidContextStorage::save([]);
+                FlashMessages::addMessage(I18N::translate('The GEDCOM 7 registry context assignments were reset to their defaults.'), 'success');
+            } elseif ($hasContexts) {
+                GedcomExidContextStorage::save($this->gedcomContextOverridesFromRequest($request));
+                FlashMessages::addMessage(I18N::translate('The GEDCOM 7 registry context assignments have been updated.'), 'success');
+            }
+        } catch (\Throwable $exception) {
+            FlashMessages::addMessage(
+                I18N::translate('The GEDCOM 7 registry context assignments could not be updated.') . ' ' . $exception->getMessage(),
+                'danger',
+            );
+        }
+
         return redirect($this->getConfigLink());
+    }
+
+    /** @return array<string,list<string>> */
+    private function gedcomContextOverridesFromRequest(ServerRequestInterface $request): array
+    {
+        $body = $request->getParsedBody();
+        $rows = is_array($body) && is_array($body['gedcom_contexts'] ?? null) ? $body['gedcom_contexts'] : [];
+        $overrides = [];
+
+        foreach (ExidServices::gedcomTypeCatalog()->all() as $index => $type) {
+            $values = is_string($rows[$index] ?? null) ? $this->contextValues($rows[$index]) : [];
+            if ($values !== []) {
+                $overrides[$type['uri']] = ExidContextCatalog::normalize($values);
+            }
+        }
+
+        return $overrides;
     }
 
     private function catalogueFromRequest(ServerRequestInterface $request): ExternalIdentifierCatalog
@@ -182,6 +228,7 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
                 'type_uris'     => $this->lines($row['type_uris'] ?? ''),
                 'value_pattern' => trim((string) ($row['value_pattern'] ?? '')),
                 'allowed_hosts' => $this->lines($row['allowed_hosts'] ?? ''),
+                'contexts'      => $this->contextValues($row['contexts'] ?? ''),
             ];
         }
 
@@ -205,6 +252,19 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             static fn (string $line): string => trim($line),
             preg_split('/\R/u', $value) ?: [],
         ), static fn (string $line): bool => $line !== ''));
+    }
+
+    /** @return list<string> */
+    private function contextValues(mixed $value): array
+    {
+        if (!is_string($value)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(
+            static fn (string $context): string => trim($context),
+            preg_split('/[\r\n,]+/u', $value) ?: [],
+        ), static fn (string $context): bool => $context !== ''));
     }
 
     public function preferredTag(): string
@@ -277,9 +337,9 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         $element = static fn (): ExtendedExternalIdentifier => new ExtendedExternalIdentifier(
             MoreI18N::xlate('External identifier'),
         );
-        $type = fn (): ExtendedExternalIdentifierType => new ExtendedExternalIdentifierType(
+        $type = fn (string $context): ExtendedExternalIdentifierType => new ExtendedExternalIdentifierType(
             MoreI18N::xlate('Type'),
-            $this->exidTypeLabels(),
+            $this->exidTypeLabels($context),
         );
 
         $tags = [];
@@ -287,20 +347,20 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         foreach (self::EXID_RECORD_TYPES as $recordType) {
             foreach ([self::TAG_EXID, self::TAG_LEGACY_EXID] as $exidTag) {
                 $tags[$recordType . ':' . $exidTag]      = $element();
-                $tags[$recordType . ':' . $exidTag . ':TYPE'] = $type();
+                $tags[$recordType . ':' . $exidTag . ':TYPE'] = $type($recordType);
             }
         }
 
         foreach (self::PLACE_EXID_CONTEXTS as $placeContext) {
             foreach ([self::TAG_EXID, self::TAG_LEGACY_EXID] as $exidTag) {
                 $tags[$placeContext . ':' . $exidTag]      = $element();
-                $tags[$placeContext . ':' . $exidTag . ':TYPE'] = $type();
+                $tags[$placeContext . ':' . $exidTag . ':TYPE'] = $type(ExidContextCatalog::PLAC);
             }
         }
 
         foreach ([self::TAG_EXID, self::TAG_LEGACY_EXID] as $exidTag) {
             $tags['_LOC:' . $exidTag]      = $element();
-            $tags['_LOC:' . $exidTag . ':TYPE'] = $type();
+            $tags['_LOC:' . $exidTag . ':TYPE'] = $type('_LOC');
         }
 
         return $tags;
@@ -335,15 +395,11 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     }
 
     /** @return array<string,string> */
-    private function exidTypeLabels(): array
+    private function exidTypeLabels(string $context): array
     {
         $labels = [];
 
-        foreach (GedcomExidTypeCatalog::fromJsonFile(__DIR__ . '/../resources/config/gedcom-exid-types.json')->all() as $type) {
-            $labels[$type['uri']] = $type['label'] . ' — ' . $type['uri'];
-        }
-
-        foreach (ExidServices::catalog()->all() as $authority) {
+        foreach (ExidServices::catalog()->forContext($context) as $authority) {
             foreach ($authority['type_uris'] as $uri) {
                 $labels[$uri] ??= $authority['label'] . ' — ' . $uri;
             }

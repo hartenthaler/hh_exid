@@ -85,8 +85,12 @@ catalogue in a table with validated fields for each authority. The active copy i
 updates do not overwrite administrator changes. It is intended for reviewed
 additional authorities:
 each entry defines its label, one or more `TYPE` URIs, the accepted identifier
-pattern and the allowed link host. The module validates the JSON and rejects
+pattern, the allowed link host and the compatible GEDCOM contexts. Use `*` as
+the context when an authority applies to every record type. The module validates the JSON and rejects
 duplicate or unsafe definitions before replacing the file atomically.
+The `Value pattern` column contains an optional regular expression; an
+identifier must match it before a link is generated. If it is empty, any safe
+identifier value is accepted.
 
 When a later module version adds new bundled default authorities, a versioned
 migration adds only missing authority keys to the active copy. Existing
@@ -94,8 +98,17 @@ administrator definitions, including deliberately removed bundled entries,
 are not overwritten.
 
 The official GEDCOM 7 `gedcom-exid-types.json` snapshot is displayed below it in
-a compact, read-only table. It is maintained from the FamilySearch registry and
-cannot be changed through the administration page.
+a compact table. It is maintained from the FamilySearch registry and cannot be
+edited, but the administrator can assign or reset its compatible contexts.
+
+The context list accepts the GEDCOM record types `FAM`, `INDI`, `OBJE`, `REPO`,
+`SNOTE`, `SOUR` and `SUBM`, as well as `PLAC` for event-place structures and
+`_LOC` for webtrees shared places. The wildcard `*` means all contexts. The
+admin form accepts one value per line or a
+comma-separated list. `SNOTE` is automatically included in every explicit
+context list, because a shared note may refer to any EXID authority. An empty
+context list is treated as `*`, so an
+unclassified or custom authority remains available instead of being hidden.
 
 ### Requirements
 

@@ -8,9 +8,9 @@ use Fisharebest\Webtrees\I18N;
 /** @var string $title */
 /** @var string $description */
 /** @var string $selected_tag */
-/** @var list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>}> $authorities */
+/** @var list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>,contexts:list<string>}> $authorities */
 /** @var bool $authority_catalogue_writable */
-/** @var list<array{source_file:string,label:string,language:string,uri:string,documentation:list<string>}> $gedcom_types */
+/** @var list<array{source_file:string,label:string,language:string,uri:string,documentation:list<string>,contexts:list<string>}> $gedcom_types */
 ?>
 
 <?= view('components/breadcrumbs', [
@@ -50,6 +50,7 @@ use Fisharebest\Webtrees\I18N;
                     <th><?= I18N::translate('TYPE URIs') ?></th>
                     <th><?= I18N::translate('Value pattern') ?></th>
                     <th><?= I18N::translate('Allowed hosts') ?></th>
+                    <th><?= I18N::translate('Compatible contexts') ?></th>
                     <th><span class="visually-hidden"><?= I18N::translate('Actions') ?></span></th>
                 </tr>
             </thead>
@@ -59,8 +60,9 @@ use Fisharebest\Webtrees\I18N;
                         <td><input class="form-control" name="authorities[<?= e((string) $index) ?>][key]" value="<?= e($authority['key']) ?>" required maxlength="80"></td>
                         <td><input class="form-control" name="authorities[<?= e((string) $index) ?>][label]" value="<?= e($authority['label']) ?>" required maxlength="200"></td>
                         <td><textarea class="form-control" name="authorities[<?= e((string) $index) ?>][type_uris]" rows="2" required><?= e(implode("\n", $authority['type_uris'])) ?></textarea></td>
-                        <td><input class="form-control font-monospace" name="authorities[<?= e((string) $index) ?>][value_pattern]" value="<?= e($authority['value_pattern']) ?>" required maxlength="200"></td>
+                        <td><input class="form-control font-monospace" name="authorities[<?= e((string) $index) ?>][value_pattern]" value="<?= e($authority['value_pattern']) ?>" maxlength="200"></td>
                         <td><textarea class="form-control" name="authorities[<?= e((string) $index) ?>][allowed_hosts]" rows="2" required><?= e(implode("\n", $authority['allowed_hosts'])) ?></textarea></td>
+                        <td><textarea class="form-control font-monospace" name="authorities[<?= e((string) $index) ?>][contexts]" rows="2" placeholder="*"><?= e(implode("\n", $authority['contexts'])) ?></textarea></td>
                         <td><button class="btn btn-outline-danger" type="button" data-exid-authority-remove><?= I18N::translate('Remove') ?></button></td>
                     </tr>
                 <?php endforeach ?>
@@ -69,7 +71,8 @@ use Fisharebest\Webtrees\I18N;
     </div>
     <button class="btn btn-secondary mb-3" type="button" id="exid-authority-add"><?= I18N::translate('Add authority') ?></button>
     <div class="form-text mb-3">
-        <?= I18N::translate('Enter one TYPE URI or host per line. Each authority must define at least one HTTPS TYPE URI and allowed host. Duplicate TYPE URIs are rejected.') ?>
+        <?= I18N::translate('Enter one value per line in each field. Compatible contexts accept comma-separated values such as INDI, PLAC, _LOC or *. Duplicate TYPE URIs are rejected.') ?>
+        <?= I18N::translate('The Value pattern field is optional; an empty value accepts any safe identifier value.') ?>
     </div>
 
     <template id="exid-authority-template">
@@ -77,8 +80,9 @@ use Fisharebest\Webtrees\I18N;
             <td><input class="form-control" name="authorities[__INDEX__][key]" required maxlength="80"></td>
             <td><input class="form-control" name="authorities[__INDEX__][label]" required maxlength="200"></td>
             <td><textarea class="form-control" name="authorities[__INDEX__][type_uris]" rows="2" required></textarea></td>
-            <td><input class="form-control font-monospace" name="authorities[__INDEX__][value_pattern]" required maxlength="200"></td>
+            <td><input class="form-control font-monospace" name="authorities[__INDEX__][value_pattern]" maxlength="200"></td>
             <td><textarea class="form-control" name="authorities[__INDEX__][allowed_hosts]" rows="2" required></textarea></td>
+            <td><textarea class="form-control font-monospace" name="authorities[__INDEX__][contexts]" rows="2" placeholder="*"></textarea></td>
             <td><button class="btn btn-outline-danger" type="button" data-exid-authority-remove><?= I18N::translate('Remove') ?></button></td>
         </tr>
     </template>
@@ -108,20 +112,23 @@ use Fisharebest\Webtrees\I18N;
     </script>
 
     <h2><?= I18N::translate('GEDCOM 7 EXID registry') ?></h2>
-    <p><?= I18N::translate('The official GEDCOM 7 registry is shown for comparison only and cannot be edited here.') ?></p>
+    <p><?= I18N::translate('The official GEDCOM 7 registry is shown for comparison only. Its compatible contexts can be assigned here; the registry data itself cannot be edited.') ?></p>
+    <button class="btn btn-secondary mb-3" type="submit" name="reset_gedcom_contexts" value="1"><?= I18N::translate('Reset registry contexts to defaults') ?></button>
     <div class="table-responsive">
         <table class="table table-sm table-striped">
             <thead>
                 <tr>
                     <th><?= I18N::translate('Name') ?></th>
                     <th><?= I18N::translate('TYPE URI') ?></th>
+                    <th><?= I18N::translate('Compatible contexts') ?></th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($gedcom_types as $type) : ?>
+                <?php foreach ($gedcom_types as $index => $type) : ?>
                     <tr>
                         <td><?= e($type['label']) ?></td>
                         <td><code><?= e($type['uri']) ?></code></td>
+                        <td><textarea class="form-control form-control-sm font-monospace" name="gedcom_contexts[<?= e((string) $index) ?>]" rows="2" placeholder="*"><?= e(implode("\n", $type['contexts'])) ?></textarea></td>
                     </tr>
                 <?php endforeach ?>
             </tbody>
