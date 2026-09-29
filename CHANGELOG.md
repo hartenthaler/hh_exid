@@ -1,5 +1,12 @@
 # Change Log
 
+## Next release
+
+- Added the confirmed GEDBAS and DePeVe person-record URL templates from the
+  Genealogienetz portal to the bundled authority catalogue. Existing
+  administrator catalogues receive these new defaults through the versioned
+  non-destructive migration.
+
 ## 2.2.6.3 - 2026-09-26
 
 - Added context-aware EXID TYPE selection for GEDCOM record types and place

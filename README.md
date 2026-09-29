@@ -187,6 +187,12 @@ registry. These catalogues only define which TYPE values are known and how
 their links are validated; an identifier is linked only when its GEDCOM data
 contains a matching TYPE value.
 
+The bundled catalogue also contains the stable person-record URL patterns
+confirmed in the Genealogienetz portal for [GEDBAS](https://gedbas.genealogy.net)
+and [DePeVe](https://depeve.de). Portal homepages and search URLs for other
+databases are not registered as EXID authorities unless a provider-specific
+identifier URL pattern is known.
+
 ## Translation
 
 The user interface uses the standard webtrees gettext system. Module-specific
