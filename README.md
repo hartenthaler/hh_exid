@@ -189,9 +189,15 @@ contains a matching TYPE value.
 
 The bundled catalogue also contains the stable person-record URL patterns
 confirmed in the Genealogienetz portal for [GEDBAS](https://gedbas.genealogy.net)
-and [DePeVe](https://depeve.de). Portal homepages and search URLs for other
-databases are not registered as EXID authorities unless a provider-specific
-identifier URL pattern is known.
+and [DePeVe](https://depeve.de), as well as [DES](https://des.genealogy.net),
+[Online-OFB](http://www.online-ofb.de/) and
+[Adressbücher](https://adressbuecher.genealogy.net/). The catalogue stores the
+complete Online-OFB value (for example
+`boehmisch_wiesenthal&ID=I4363`) after its fixed `famreport.php?ofb=` prefix.
+These authorities are offered only in the contexts `INDI`, `SOUR` and `SNOTE`,
+where person, source and note identifiers are meaningful. Portal homepages
+and search URLs for other databases are not registered as EXID authorities
+unless a provider-specific identifier URL pattern is known.
 
 ## Translation
 

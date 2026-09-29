@@ -6,6 +6,10 @@
   Genealogienetz portal to the bundled authority catalogue. Existing
   administrator catalogues receive these new defaults through the versioned
   non-destructive migration.
+- Restricted both authorities to the meaningful `INDI`, `SOUR` and `SNOTE`
+  contexts.
+- Added reviewed identifier URL patterns for DES, Online-OFB and
+  Adressbücher, including numeric, composite OFB and UUID value validation.
 
 ## 2.2.6.3 - 2026-09-26
 
