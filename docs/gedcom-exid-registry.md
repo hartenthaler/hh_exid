@@ -13,6 +13,14 @@ provider definition is discarded. A registry entry does not automatically
 imply that the payload can safely be turned into a public URL, and it never
 supplies a missing TYPE for an EXID.
 
+Temporary corrections to an upstream registry value are kept separately in
+`resources/config/gedcom-exid-uri-overrides.json`. This currently corrects the
+FamilySearch Person ID URI to the usable
+`https://www.familysearch.org/tree/person/details/` URL base while the upstream
+`FamilySearch-PersonId.yaml` definition is being corrected. The upstream
+snapshot itself remains unchanged. Remove the override after the upstream YAML
+and the refreshed snapshot contain the corrected value.
+
 To update the snapshot:
 
 1. Read the current YAML files in the upstream `uri/exid-types` directory.

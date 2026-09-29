@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "defaults_version": 3,
+  "defaults_version": 4,
   "authorities": [
     {
       "key": "wikidata",
@@ -52,7 +52,7 @@
     {
       "key": "ofb",
       "label": "Online-OFB",
-      "type_uris": ["http://www.online-ofb.de/famreport.php?ofb="],
+      "type_uris": ["https://www.online-ofb.de/famreport.php?ofb="],
       "value_pattern": "[A-Za-z0-9_-]+&ID=[A-Za-z0-9_-]+",
       "allowed_hosts": ["www.online-ofb.de"],
       "contexts": ["INDI", "SOUR", "SNOTE"]
@@ -122,6 +122,78 @@
         "zh.wikipedia.org"
       ],
       "contexts": ["*"]
+    },
+    {
+      "key": "facebook",
+      "label": "Facebook",
+      "type_uris": ["https://www.facebook.com/"],
+      "value_pattern": "[A-Za-z0-9._-]{1,200}",
+      "allowed_hosts": ["www.facebook.com"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
+    },
+    {
+      "key": "geneee",
+      "label": "geneee",
+      "type_uris": ["https://geneee.org/"],
+      "value_pattern": "[A-Za-z0-9._-]{1,200}",
+      "allowed_hosts": ["geneee.org"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
+    },
+    {
+      "key": "geni",
+      "label": "Geni",
+      "type_uris": ["https://www.geni.com/people/"],
+      "value_pattern": "[A-Za-z0-9._-]{1,200}",
+      "allowed_hosts": ["www.geni.com"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
+    },
+    {
+      "key": "instagram",
+      "label": "Instagram",
+      "type_uris": ["https://www.instagram.com/"],
+      "value_pattern": "[A-Za-z0-9._-]{1,200}",
+      "allowed_hosts": ["www.instagram.com"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
+    },
+    {
+      "key": "linkedin",
+      "label": "LinkedIn",
+      "type_uris": ["https://www.linkedin.com/in/"],
+      "value_pattern": "[A-Za-z0-9._-]{1,200}",
+      "allowed_hosts": ["www.linkedin.com"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
+    },
+    {
+      "key": "roglo",
+      "label": "Roglo",
+      "type_uris": ["https://roglo.eu/roglo?"],
+      "value_pattern": "[A-Za-z0-9._;=&-]{1,200}",
+      "allowed_hosts": ["roglo.eu"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
+    },
+    {
+      "key": "viaf",
+      "label": "VIAF",
+      "type_uris": ["https://viaf.org/viaf/"],
+      "value_pattern": "[1-9][0-9]{1,21}",
+      "allowed_hosts": ["viaf.org"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
+    },
+    {
+      "key": "werelate",
+      "label": "WeRelate",
+      "type_uris": ["https://www.werelate.org/wiki/Person:"],
+      "value_pattern": "[^\\x00-\\x1F\\x7F]{1,200}",
+      "allowed_hosts": ["www.werelate.org"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
+    },
+    {
+      "key": "xing",
+      "label": "XING",
+      "type_uris": ["https://www.xing.com/profile/"],
+      "value_pattern": "[A-Za-z0-9._&'\\-]{1,200}\\/cv",
+      "allowed_hosts": ["www.xing.com"],
+      "contexts": ["INDI", "SOUR", "SNOTE"]
     }
   ]
 }

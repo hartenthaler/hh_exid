@@ -35,7 +35,10 @@ final class ExidServices
 
     public static function gedcomTypeCatalog(): GedcomExidTypeCatalog
     {
-        return self::$gedcomTypeCatalog ??= GedcomExidTypeCatalog::fromJsonFile(__DIR__ . '/../resources/config/gedcom-exid-types.json');
+        return self::$gedcomTypeCatalog ??= GedcomExidTypeCatalog::fromJsonFile(
+            __DIR__ . '/../resources/config/gedcom-exid-types.json',
+            __DIR__ . '/../resources/config/gedcom-exid-uri-overrides.json',
+        );
     }
 
     /** @return list<ExternalIdentifierValue> */

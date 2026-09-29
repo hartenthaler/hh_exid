@@ -128,5 +128,5 @@ msgstr ""
 msgid "The external identifier does not match the selected authority."
 msgstr ""
 
-msgid "Replace level-1 _FSFTID tags with EXID (or _EXID) and a FamilySearch person-link TYPE."
+msgid "Replace level-1 _FSFTID tags with EXID (or _EXID) and the configured FamilySearch Person ID TYPE URI."
 msgstr ""

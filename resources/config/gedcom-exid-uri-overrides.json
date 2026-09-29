@@ -1,0 +1,5 @@
+{
+  "overrides": {
+    "FamilySearch-PersonId.yaml": "https://www.familysearch.org/tree/person/details/"
+  }
+}

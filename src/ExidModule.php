@@ -53,8 +53,6 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     private const PREFERENCE_EXID_TAG = 'exid_tag';
     public const TAG_EXID = 'EXID';
     public const TAG_LEGACY_EXID = '_EXID';
-    private const FAMILYSEARCH_PERSON_URI = 'https://www.familysearch.org/tree/person/details/';
-
     private DataFixService $dataFixService;
 
     public function __construct(DataFixService $dataFixService)
@@ -296,7 +294,7 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     public function fixOptions(Tree $tree): string
     {
         return '<p>' . e(I18N::translate(
-            'Replace level-1 _FSFTID tags with EXID (or _EXID) and a FamilySearch person-link TYPE.'
+            'Replace level-1 _FSFTID tags with EXID (or _EXID) and the configured FamilySearch Person ID TYPE URI.'
         )) . '</p>';
     }
 
@@ -405,7 +403,7 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
 
             $id = $match[1];
             $converted[] = '1 ' . $this->preferredTag() . ' ' . $id;
-            $converted[] = '2 TYPE ' . self::FAMILYSEARCH_PERSON_URI . rawurlencode($id);
+            $converted[] = '2 TYPE ' . $this->familySearchPersonTypeUri();
 
             // A few imports add a TYPE child to _FSFTID.  Replace it rather
             // than leaving two TYPE children on the newly created EXID.
@@ -415,6 +413,17 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         }
 
         return implode("\n", $converted);
+    }
+
+    private function familySearchPersonTypeUri(): string
+    {
+        $type = ExidServices::gedcomTypeCatalog()->findBySourceFile('FamilySearch-PersonId.yaml');
+
+        if ($type === null) {
+            throw new \RuntimeException('The GEDCOM EXID type catalogue does not contain FamilySearch-PersonId.yaml.');
+        }
+
+        return $type['uri'];
     }
 
     public function customTranslations(string $language): array
