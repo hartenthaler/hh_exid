@@ -10,5 +10,14 @@
     "psr-4": {
       "Hartenthaler\\Webtrees\\Module\\ExidModule\\": "src/"
     }
+  },
+  "extra": {
+    "webtrees-custom-module": {
+      "title": "External Identifiers",
+      "description": "Adds GEDCOM external-identifier support and links for EXID values.",
+      "github-repo": "https://github.com/hartenthaler/hh_exid",
+      "tag-prefix": "v",
+      "category": "gedcom"
+    }
   }
 }
