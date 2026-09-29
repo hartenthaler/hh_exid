@@ -125,3 +125,6 @@ msgstr "Der EXID-Autoritätskatalog konnte nicht aktualisiert werden."
 
 msgid "The external identifier does not match the selected authority."
 msgstr "Die externe Kennung entspricht nicht dem Muster der ausgewählten Autorität."
+
+msgid "Replace level-1 _FSFTID tags with EXID (or _EXID) and a FamilySearch person-link TYPE."
+msgstr "Kennzeichen _FSFTID der Ebene 1 durch EXID (oder _EXID) und ein TYPE mit dem FamilySearch-Personenlink ersetzen."

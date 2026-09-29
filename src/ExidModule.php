@@ -12,7 +12,12 @@ use Fisharebest\Webtrees\Module\ModuleConfigInterface;
 use Fisharebest\Webtrees\Module\ModuleConfigTrait;
 use Fisharebest\Webtrees\Module\ModuleCustomInterface;
 use Fisharebest\Webtrees\Module\ModuleCustomTrait;
+use Fisharebest\Webtrees\Module\ModuleDataFixInterface;
+use Fisharebest\Webtrees\Module\ModuleDataFixTrait;
 use Fisharebest\Webtrees\Module\ModuleGlobalInterface;
+use Fisharebest\Webtrees\GedcomRecord;
+use Fisharebest\Webtrees\Services\DataFixService;
+use Fisharebest\Webtrees\Tree;
 use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\View;
@@ -24,6 +29,7 @@ use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierCat
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidContextStorage;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Support\Collection;
 
 use function file_exists;
 use function array_key_exists;
@@ -33,18 +39,28 @@ use function array_values;
 use function is_array;
 use function json_encode;
 use function preg_split;
+use function preg_match;
 use function trim;
 
-class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleGlobalInterface
+class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleDataFixInterface, ModuleGlobalInterface
 {
     use ModuleConfigTrait;
     use ModuleCustomTrait;
+    use ModuleDataFixTrait;
 
     private const MODULE_NAME = 'hh_exid';
     private const GITHUB_USER = 'hartenthaler';
     private const PREFERENCE_EXID_TAG = 'exid_tag';
     public const TAG_EXID = 'EXID';
     public const TAG_LEGACY_EXID = '_EXID';
+    private const FAMILYSEARCH_PERSON_URI = 'https://www.familysearch.org/tree/person/details/';
+
+    private DataFixService $dataFixService;
+
+    public function __construct(DataFixService $dataFixService)
+    {
+        $this->dataFixService = $dataFixService;
+    }
 
     /**
      * GEDCOM 7 record types that directly contain IDENTIFIER_STRUCTURE.
@@ -272,6 +288,133 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
         $tag = $this->getPreference(self::PREFERENCE_EXID_TAG, self::TAG_LEGACY_EXID);
 
         return in_array($tag, [self::TAG_EXID, self::TAG_LEGACY_EXID], true) ? $tag : self::TAG_LEGACY_EXID;
+    }
+
+    /**
+     * Describe the legacy FamilySearch conversion shown in the data-fix menu.
+     */
+    public function fixOptions(Tree $tree): string
+    {
+        return '<p>' . e(I18N::translate(
+            'Replace level-1 _FSFTID tags with EXID (or _EXID) and a FamilySearch person-link TYPE.'
+        )) . '</p>';
+    }
+
+    /**
+     * XREFs of every record type that contains a legacy _FSFTID tag.
+     *
+     * The tag is normally found on individuals, but old imports and custom
+     * workflows can place it in other records.  The data fix therefore scans
+     * every record type supported by webtrees rather than silently assuming
+     * INDI only.
+     *
+     * @return Collection<int,string>|null
+     */
+    protected function familiesToFix(Tree $tree, array $params): ?Collection
+    {
+        return $this->familiesToFixQuery($tree, $params)
+            ->where('f_gedcom', 'LIKE', "%\n1 _FSFTID %")
+            ->pluck('f_id');
+    }
+
+    protected function individualsToFix(Tree $tree, array $params): ?Collection
+    {
+        return $this->individualsToFixQuery($tree, $params)
+            ->where('i_gedcom', 'LIKE', "%\n1 _FSFTID %")
+            ->pluck('i_id');
+    }
+
+    protected function locationsToFix(Tree $tree, array $params): ?Collection
+    {
+        return $this->locationsToFixQuery($tree, $params)
+            ->where('o_gedcom', 'LIKE', "%\n1 _FSFTID %")
+            ->pluck('o_id');
+    }
+
+    protected function mediaToFix(Tree $tree, array $params): ?Collection
+    {
+        return $this->mediaToFixQuery($tree, $params)
+            ->where('m_gedcom', 'LIKE', "%\n1 _FSFTID %")
+            ->pluck('m_id');
+    }
+
+    protected function notesToFix(Tree $tree, array $params): ?Collection
+    {
+        return $this->notesToFixQuery($tree, $params)
+            ->where('o_gedcom', 'LIKE', "%\n1 _FSFTID %")
+            ->pluck('o_id');
+    }
+
+    protected function repositoriesToFix(Tree $tree, array $params): ?Collection
+    {
+        return $this->repositoriesToFixQuery($tree, $params)
+            ->where('o_gedcom', 'LIKE', "%\n1 _FSFTID %")
+            ->pluck('o_id');
+    }
+
+    protected function sourcesToFix(Tree $tree, array $params): ?Collection
+    {
+        return $this->sourcesToFixQuery($tree, $params)
+            ->where('s_gedcom', 'LIKE', "%\n1 _FSFTID %")
+            ->pluck('s_id');
+    }
+
+    protected function submittersToFix(Tree $tree, array $params): ?Collection
+    {
+        return $this->submittersToFixQuery($tree, $params)
+            ->where('o_gedcom', 'LIKE', "%\n1 _FSFTID %")
+            ->pluck('o_id');
+    }
+
+    public function doesRecordNeedUpdate(GedcomRecord $record, array $params): bool
+    {
+        return preg_match('/^1 _FSFTID\s+\S+/mu', $record->gedcom()) === 1;
+    }
+
+    public function previewUpdate(GedcomRecord $record, array $params): string
+    {
+        return $this->dataFixService->gedcomDiff(
+            $record->tree(),
+            $record->gedcom(),
+            $this->convertLegacyFamilySearchIds($record->gedcom()),
+        );
+    }
+
+    public function updateRecord(GedcomRecord $record, array $params): void
+    {
+        $oldGedcom = $record->gedcom();
+        $newGedcom = $this->convertLegacyFamilySearchIds($oldGedcom);
+
+        if ($newGedcom !== $oldGedcom) {
+            $record->updateRecord($newGedcom, false);
+        }
+    }
+
+    private function convertLegacyFamilySearchIds(string $gedcom): string
+    {
+        $lines = preg_split('/\R/u', $gedcom) ?: [];
+        $converted = [];
+
+        for ($index = 0, $count = count($lines); $index < $count; $index++) {
+            $line = $lines[$index];
+
+            if (preg_match('/^1 _FSFTID\s+(\S+)\s*$/u', $line, $match) !== 1) {
+                $converted[] = $line;
+                continue;
+            }
+
+            $id = $match[1];
+            $converted[] = '1 ' . $this->preferredTag() . ' ' . $id;
+            $converted[] = '2 TYPE ' . self::FAMILYSEARCH_PERSON_URI . rawurlencode($id);
+
+            // A few imports add a TYPE child to _FSFTID.  Replace it rather
+            // than leaving two TYPE children on the newly created EXID.
+            if (($lines[$index + 1] ?? '') !== '' && preg_match('/^2 TYPE(?:\s|$)/u', $lines[$index + 1]) === 1) {
+                $index++;
+            }
+        }
+
+        return implode("\n", $converted);
     }
 
     public function customTranslations(string $language): array

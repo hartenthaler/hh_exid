@@ -2,6 +2,9 @@
 
 ## Next release
 
+- Added an administrator data-fix for converting legacy level-1 `_FSFTID`
+  tags into the configured `EXID` or `_EXID` spelling, including a
+  FamilySearch person-link `TYPE`.
 - Added the confirmed GEDBAS and DePeVe person-record URL templates from the
   Genealogienetz portal to the bundled authority catalogue. Existing
   administrator catalogues receive these new defaults through the versioned
