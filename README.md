@@ -190,7 +190,7 @@ contains a matching TYPE value.
 The bundled catalogue also contains the stable person-record URL patterns
 confirmed in the Genealogienetz portal for [GEDBAS](https://gedbas.genealogy.net)
 and [DePeVe](https://depeve.de), as well as [DES](https://des.genealogy.net),
-[Online-OFB](http://www.online-ofb.de/) and
+[Online-OFB](https://www.online-ofb.de/) and
 [Adressbücher](https://adressbuecher.genealogy.net/). The catalogue stores the
 complete Online-OFB value (for example
 `boehmisch_wiesenthal&ID=I4363`) after its fixed `famreport.php?ofb=` prefix.

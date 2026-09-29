@@ -32,7 +32,7 @@ final class GedcomExidTypeCatalog
         $this->types = $types;
     }
 
-    public static function fromJsonFile(string $filename): self
+    public static function fromJsonFile(string $filename, ?string $overrideFilename = null): self
     {
         if (!is_file($filename)) {
             throw new RuntimeException('The GEDCOM EXID type catalogue does not exist.');
@@ -43,6 +43,24 @@ final class GedcomExidTypeCatalog
 
         if (json_last_error() !== JSON_ERROR_NONE || !is_array($data) || !is_array($data['types'] ?? null)) {
             throw new RuntimeException('The GEDCOM EXID type catalogue is invalid.');
+        }
+
+        $overrides = [];
+        if ($overrideFilename !== null && is_file($overrideFilename)) {
+            $overrideJson = file_get_contents($overrideFilename);
+            $overrideData = is_string($overrideJson) ? json_decode($overrideJson, true) : null;
+
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($overrideData) || !is_array($overrideData['overrides'] ?? null)) {
+                throw new RuntimeException('The GEDCOM EXID type override catalogue is invalid.');
+            }
+
+            foreach ($overrideData['overrides'] as $sourceFile => $uri) {
+                if (!is_string($sourceFile) || !is_string($uri) || trim($uri) === '') {
+                    throw new RuntimeException('The GEDCOM EXID type override catalogue contains an invalid URI.');
+                }
+
+                $overrides[$sourceFile] = trim($uri);
+            }
         }
 
         $types = [];
@@ -59,11 +77,17 @@ final class GedcomExidTypeCatalog
                 continue;
             }
 
-            $types[$type['uri']] = [
+            $uri = $overrides[$type['source_file']] ?? $type['uri'];
+
+            if (isset($types[$uri])) {
+                continue;
+            }
+
+            $types[$uri] = [
                 'source_file'   => $type['source_file'],
                 'label'         => $type['label'],
                 'language'       => $type['language'],
-                'uri'            => $type['uri'],
+                'uri'            => $uri,
                 'documentation' => array_values(array_filter($type['documentation'], 'is_string')),
             ];
         }
@@ -75,6 +99,18 @@ final class GedcomExidTypeCatalog
     public function find(string $uri): ?array
     {
         return $this->types[trim($uri)] ?? null;
+    }
+
+    /** @return array{source_file:string,label:string,language:string,uri:string,documentation:list<string>}|null */
+    public function findBySourceFile(string $sourceFile): ?array
+    {
+        foreach ($this->types as $type) {
+            if ($type['source_file'] === $sourceFile) {
+                return $type;
+            }
+        }
+
+        return null;
     }
 
     /** @return list<array{source_file:string,label:string,language:string,uri:string,documentation:list<string>}> */

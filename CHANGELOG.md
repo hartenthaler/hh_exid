@@ -2,9 +2,13 @@
 
 ## Next release
 
+- Fixed the Online-OFB authority definition to use HTTPS and migrate the
+  previously stored HTTP URI automatically.
 - Added an administrator data-fix for converting legacy level-1 `_FSFTID`
-  tags into the configured `EXID` or `_EXID` spelling, including a
-  FamilySearch person-link `TYPE`.
+  tags into the configured `EXID` or `_EXID` spelling with the configured
+  FamilySearch Person ID URI as `TYPE` (without appending the ID to the URI).
+- Added a temporary local correction for the erroneous FamilySearch Person ID
+  URI in the upstream GEDCOM registry snapshot.
 - Added the confirmed GEDBAS and DePeVe person-record URL templates from the
   Genealogienetz portal to the bundled authority catalogue. Existing
   administrator catalogues receive these new defaults through the versioned
@@ -13,6 +17,8 @@
   contexts.
 - Added reviewed identifier URL patterns for DES, Online-OFB and
   Adressbücher, including numeric, composite OFB and UUID value validation.
+- Added URI definitions for Geni, geneee, Roglo, XING, WeRelate, VIAF,
+  Instagram, Facebook and LinkedIn for `INDI`, `SOUR` and `SNOTE` records.
 
 ## 2.2.6.3 - 2026-09-26
 

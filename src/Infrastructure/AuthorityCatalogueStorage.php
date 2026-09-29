@@ -8,6 +8,7 @@ use Fisharebest\Webtrees\Registry;
 use RuntimeException;
 
 use function is_dir;
+use function str_replace;
 use function is_writable;
 
 /**
@@ -27,7 +28,27 @@ final class AuthorityCatalogueStorage
         $seed = ExternalIdentifierCatalog::fromJsonFile(__DIR__ . '/../../resources/config/exid-authorities.json');
 
         if ($filesystem->fileExists(self::DATA_FILE)) {
-            $catalogue = ExternalIdentifierCatalog::fromJson($filesystem->read(self::DATA_FILE));
+            $storedJson = $filesystem->read(self::DATA_FILE);
+            $migratedJson = str_replace(
+                'http://www.online-ofb.de/famreport.php?ofb=',
+                'https://www.online-ofb.de/famreport.php?ofb=',
+                $storedJson,
+                $legacyUriCount,
+            );
+            $catalogue = ExternalIdentifierCatalog::fromJson($migratedJson);
+
+            if ($legacyUriCount > 0) {
+                // The original Online-OFB definition used HTTP.  The site
+                // now supports HTTPS and the catalogue validator deliberately
+                // rejects insecure TYPE URIs, so migrate this known legacy
+                // value before validating the administrator-owned catalogue.
+                try {
+                    self::save($catalogue);
+                } catch (\Throwable) {
+                    // Keep using the migrated in-memory catalogue.  The next
+                    // request can retry the persistent migration.
+                }
+            }
 
             if ($catalogue->mergeMissingDefaults($seed)) {
                 // A migration failure must not prevent the module from using
