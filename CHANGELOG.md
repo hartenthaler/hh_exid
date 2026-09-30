@@ -19,6 +19,12 @@
   Adressbücher, including numeric, composite OFB and UUID value validation.
 - Added URI definitions for Geni, geneee, Roglo, XING, WeRelate, VIAF,
   Instagram, Facebook and LinkedIn for `INDI`, `SOUR` and `SNOTE` records.
+- Corrected geneee identifier validation and preserved its slash-separated
+  path components when creating links.
+- Prevented already percent-encoded identifier parts from being encoded a
+  second time in generated links, including WeRelate page names.
+- Corrected Geni identifier validation for Unicode name slugs followed by a
+  numeric profile ID.
 
 ## 2.2.6.3 - 2026-09-26
 

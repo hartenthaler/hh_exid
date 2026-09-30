@@ -135,7 +135,7 @@
       "key": "geneee",
       "label": "geneee",
       "type_uris": ["https://geneee.org/"],
-      "value_pattern": "[A-Za-z0-9._-]{1,200}",
+      "value_pattern": "[A-Za-z0-9._-]+(?:\\/[A-Za-z0-9._-]+)+",
       "allowed_hosts": ["geneee.org"],
       "contexts": ["INDI", "SOUR", "SNOTE"]
     },
@@ -143,7 +143,7 @@
       "key": "geni",
       "label": "Geni",
       "type_uris": ["https://www.geni.com/people/"],
-      "value_pattern": "[A-Za-z0-9._-]{1,200}",
+      "value_pattern": "[\\p{L}\\p{N}._'-]{1,200}(?:\\/[0-9]{1,30})?",
       "allowed_hosts": ["www.geni.com"],
       "contexts": ["INDI", "SOUR", "SNOTE"]
     },
@@ -167,7 +167,7 @@
       "key": "roglo",
       "label": "Roglo",
       "type_uris": ["https://roglo.eu/roglo?"],
-      "value_pattern": "[A-Za-z0-9._;=&-]{1,200}",
+      "value_pattern": "[A-Za-z0-9._;=&+\\-]{1,200}",
       "allowed_hosts": ["roglo.eu"],
       "contexts": ["INDI", "SOUR", "SNOTE"]
     },

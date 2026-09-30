@@ -17,8 +17,11 @@ use function json_last_error;
 use function preg_match;
 use function rawurlencode;
 use function parse_url;
+use function preg_replace;
 use function rtrim;
 use function strlen;
+use function strpos;
+use function str_replace;
 use function trim;
 
 use const JSON_ERROR_NONE;
@@ -267,7 +270,32 @@ final class ExternalIdentifierCatalog
             return null;
         }
 
-        $url   = $typeUri . rawurlencode($value);
+        // Some authorities use structured path values, for example geneee
+        // IDs such as "franziska/baumgartner". Other identifiers, such as
+        // WeRelate page names, may already contain percent-encoded parts.
+        // Encode unsafe characters but preserve accepted slash separators and
+        // existing percent-encoded octets.
+        $encodedValue = rawurlencode($value);
+        $encodedValue = preg_replace('/%25([0-9A-Fa-f]{2})/', '%$1', $encodedValue);
+
+        if (!is_string($encodedValue)) {
+            return null;
+        }
+
+        $encodedValue = str_replace('%2F', '/', $encodedValue);
+
+        // Query-style TYPE prefixes (for example Roglo and Online-OFB) use
+        // delimiters inside the identifier value. Keep only the delimiters
+        // accepted by the authority's value pattern as query syntax.
+        if (strpos($typeUri, '?') !== false) {
+            $encodedValue = str_replace(
+                ['%3D', '%3B', '%26', '%2B'],
+                ['=', ';', '&', '+'],
+                $encodedValue,
+            );
+        }
+
+        $url = $typeUri . $encodedValue;
         $parts = parse_url($url);
 
         if (!is_array($parts)
