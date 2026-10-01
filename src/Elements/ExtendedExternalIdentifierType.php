@@ -61,6 +61,21 @@ final class ExtendedExternalIdentifierType extends ExternalIdentifierType
 
     public function value(string $value, Tree $tree): string
     {
-        return '<span data-exid-type-value dir="ltr">' . htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</span>';
+        $label = null;
+
+        foreach ($this->uriLabels as $uri => $uriLabel) {
+            if (rtrim($uri, '/') === rtrim($value, '/')) {
+                $label = $uriLabel;
+                break;
+            }
+        }
+
+        $labelContainsUri = $label !== null
+            && str_ends_with(rtrim($label, '/'), rtrim($value, '/'));
+        $display = $label === null || trim($value) === ''
+            ? $value
+            : ($labelContainsUri ? $label : $label . ' — ' . $value);
+
+        return '<span data-exid-type-value dir="ltr">' . htmlspecialchars($display, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</span>';
     }
 }
