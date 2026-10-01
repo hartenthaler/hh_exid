@@ -50,7 +50,24 @@ final class AuthorityCatalogueStorage
                 }
             }
 
-            if ($catalogue->mergeMissingDefaults($seed)) {
+            if ($catalogue->mergeMissingDefaults($seed, [
+                'geneee' => [
+                    'from' => '[A-Za-z0-9._-]{1,200}',
+                    'to'   => '[A-Za-z0-9._-]+(?:\\/[A-Za-z0-9._-]+)+',
+                ],
+                'geni' => [
+                    'from' => '[A-Za-z0-9._-]{1,200}',
+                    'to'   => '[\\p{L}\\p{N}._\'-]{1,200}(?:\\/[0-9]{1,30})?',
+                ],
+                'roglo' => [
+                    'from' => '[A-Za-z0-9._;=&-]{1,200}',
+                    'to'   => '[A-Za-z0-9._;=&+\\-]{1,200}',
+                ],
+                'xing' => [
+                    'from' => '[A-Za-z0-9._&\'\\-]{1,200}\\/cv',
+                    'to'   => '[A-Za-z0-9._&\'\\-]{1,200}',
+                ],
+            ])) {
                 // A migration failure must not prevent the module from using
                 // the migrated in-memory catalogue during this request.
                 try {
@@ -66,12 +83,12 @@ final class AuthorityCatalogueStorage
         // Seed the data directory once.  A failed seed write must not prevent
         // the module from working with its bundled defaults.
         try {
-            $filesystem->write(self::DATA_FILE, $catalogue->toJson());
+            $filesystem->write(self::DATA_FILE, $seed->toJson());
         } catch (\Throwable) {
             // The administration page reports the writeability problem.
         }
 
-        return $catalogue;
+        return $seed;
     }
 
     public static function save(ExternalIdentifierCatalog $catalogue): void

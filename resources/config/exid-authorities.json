@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "defaults_version": 4,
+  "defaults_version": 6,
   "authorities": [
     {
       "key": "wikidata",
@@ -191,7 +191,7 @@
       "key": "xing",
       "label": "XING",
       "type_uris": ["https://www.xing.com/profile/"],
-      "value_pattern": "[A-Za-z0-9._&'\\-]{1,200}\\/cv",
+      "value_pattern": "[A-Za-z0-9._&'\\-]{1,200}",
       "allowed_hosts": ["www.xing.com"],
       "contexts": ["INDI", "SOUR", "SNOTE"]
     }

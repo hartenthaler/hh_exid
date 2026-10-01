@@ -172,11 +172,16 @@ final class ExternalIdentifierCatalog
 
     /**
      * Add bundled defaults from a newer seed without changing administrator
-     * definitions. A migration is applied only once for each seed version;
-     * this also means that an administrator can deliberately remove a
-     * bundled authority after the migration.
+     * definitions. Explicit pattern migrations only replace the exact prior
+     * bundled pattern, so an administrator's custom pattern remains intact.
+     * A migration is applied only once for each seed version; this also means
+     * that an administrator can deliberately remove a bundled authority after
+     * the migration.
      */
-    public function mergeMissingDefaults(self $defaults): bool
+    /**
+     * @param array<string,array{from:string,to:string}> $patternMigrations
+     */
+    public function mergeMissingDefaults(self $defaults, array $patternMigrations = []): bool
     {
         if ($this->defaultsVersion >= $defaults->defaultsVersion) {
             return false;
@@ -193,6 +198,15 @@ final class ExternalIdentifierCatalog
                 $knownKeys[$definition['key']] = true;
             }
         }
+
+        foreach ($this->definitions as &$definition) {
+            $migration = $patternMigrations[$definition['key']] ?? null;
+
+            if ($migration !== null && $definition['value_pattern'] === $migration['from']) {
+                $definition['value_pattern'] = $migration['to'];
+            }
+        }
+        unset($definition);
 
         $this->defaultsVersion = $defaults->defaultsVersion;
 

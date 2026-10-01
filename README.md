@@ -1,7 +1,7 @@
 # hh_exid
 
 ![webtrees major version](https://img.shields.io/badge/webtrees-v2.2.x-green)
-[![Module version](https://img.shields.io/badge/version-2.2.6.2-blue)](version.txt)
+[![Module version](https://img.shields.io/badge/version-2.2.6.3-blue)](version.txt)
 [![Downloads](https://img.shields.io/github/downloads/hartenthaler/hh_exid/total?label=downloads)](https://github.com/hartenthaler/hh_exid/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
@@ -101,6 +101,10 @@ are not overwritten.
 The official GEDCOM 7 `gedcom-exid-types.json` snapshot is displayed below it in
 a compact table. It is maintained from the FamilySearch registry and cannot be
 edited, but the administrator can assign or reset its compatible contexts.
+FamilySearch currently makes no commitment that a permanent public URL for a
+FamilySearch Person ID will remain available. The module therefore retains a
+local compatibility override for the FamilySearch Person ID link and does not
+depend on that promise being made later.
 
 The context list accepts the GEDCOM record types `FAM`, `INDI`, `OBJE`, `REPO`,
 `SNOTE`, `SOUR` and `SUBM`, as well as `PLAC` for event-place structures and
@@ -187,11 +191,11 @@ registry. These catalogues only define which TYPE values are known and how
 their links are validated; an identifier is linked only when its GEDCOM data
 contains a matching TYPE value.
 
-The bundled catalogue also contains the stable person-record URL patterns
-confirmed in the Genealogienetz portal for [GEDBAS](https://gedbas.genealogy.net)
-and [DePeVe](https://depeve.de), as well as [DES](https://des.genealogy.net),
-[Online-OFB](https://www.online-ofb.de/) and
-[Adressbücher](https://adressbuecher.genealogy.net/). The catalogue stores the
+The bundled catalogue also contains reviewed and verified person-record URL
+patterns for [GEDBAS](https://gedbas.genealogy.net), [DePeVe](https://depeve.de),
+[DES](https://des.genealogy.net), [Online-OFB](https://www.online-ofb.de/),
+[Adressbücher](https://adressbuecher.genealogy.net/), Geni, geneee, Roglo,
+XING, WeRelate, VIAF, Instagram, Facebook and LinkedIn. The catalogue stores the
 complete Online-OFB value (for example
 `boehmisch_wiesenthal&ID=I4363`) after its fixed `famreport.php?ofb=` prefix.
 These authorities are offered only in the contexts `INDI`, `SOUR` and `SNOTE`,
