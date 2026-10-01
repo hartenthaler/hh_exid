@@ -93,6 +93,23 @@
         document.querySelectorAll('[data-exid-value-input]').forEach(validateValue);
     }
 
+    function encodeIdentifierValue(value, type) {
+        // Preserve already percent-encoded octets and structured separators
+        // used by path- and query-based authorities such as geneee and Roglo.
+        let encoded = encodeURIComponent(value).replace(/%25([0-9A-Fa-f]{2})/g, '%$1');
+        encoded = encoded.replace(/%2F/gi, '/');
+
+        if (type.includes('?')) {
+            encoded = encoded
+                .replace(/%3D/gi, '=')
+                .replace(/%3B/gi, ';')
+                .replace(/%26/gi, '&')
+                .replace(/%2B/gi, '+');
+        }
+
+        return encoded;
+    }
+
     function linkValue(valueNode, type) {
         const value = valueNode.textContent.trim();
 
@@ -101,7 +118,7 @@
         }
 
         const anchor = document.createElement('a');
-        anchor.href = type + encodeURIComponent(value);
+        anchor.href = type + encodeIdentifierValue(value, type);
         anchor.target = '_blank';
         anchor.rel = 'noopener noreferrer';
         anchor.textContent = value;
