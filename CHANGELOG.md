@@ -6,7 +6,7 @@
   previously stored HTTP URI automatically.
 - Added an administrator data-fix for converting legacy level-1 `_FSFTID`
   tags into the configured `EXID` or `_EXID` spelling with the configured
-  FamilySearch Person ID URI as `TYPE` (without appending the ID to the URI).
+  FamilySearch Person ID URI as `TYPE`.
 - Retained a local compatibility override for the FamilySearch Person ID URL,
   because FamilySearch currently provides no guarantee of permanently stable
   public person-record URIs.
