@@ -15,6 +15,10 @@ use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\ModuleDataFixInterface;
 use Fisharebest\Webtrees\Module\ModuleDataFixTrait;
 use Fisharebest\Webtrees\Module\ModuleGlobalInterface;
+use Fisharebest\Webtrees\Module\ModuleSidebarInterface;
+use Fisharebest\Webtrees\Module\ModuleSidebarTrait;
+use Fisharebest\Webtrees\Fact;
+use Fisharebest\Webtrees\Individual;
 use Fisharebest\Webtrees\GedcomRecord;
 use Fisharebest\Webtrees\Services\DataFixService;
 use Fisharebest\Webtrees\Tree;
@@ -29,6 +33,7 @@ use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\ExternalIdentifierCat
 use Hartenthaler\Webtrees\Module\ExidModule\Infrastructure\GedcomExidContextStorage;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 
 use function file_exists;
@@ -42,15 +47,24 @@ use function preg_split;
 use function preg_match;
 use function trim;
 
-class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleDataFixInterface, ModuleGlobalInterface
+class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleDataFixInterface, ModuleGlobalInterface, ModuleSidebarInterface
 {
     use ModuleConfigTrait;
     use ModuleCustomTrait;
     use ModuleDataFixTrait;
+    use ModuleSidebarTrait;
 
     private const MODULE_NAME = 'hh_exid';
     private const GITHUB_USER = 'hartenthaler';
     private const PREFERENCE_EXID_TAG = 'exid_tag';
+    private const PREFERENCE_DISPLAY_MODE = 'exid_display_mode';
+    private const DISPLAY_MODE_SIDEBAR = 'sidebar';
+    private const DISPLAY_MODE_FACTS = 'facts';
+    private const FIX_OPERATION_FAMILYSEARCH = 'familysearch';
+    private const FIX_OPERATION_REPLACE_TYPE = 'replace_type';
+    private const FIX_OPERATION_PARAMETER = 'exid_fix_operation';
+    private const OLD_TYPE_PARAMETER = 'old_type_uri';
+    private const NEW_TYPE_PARAMETER = 'new_type_uri';
     public const TAG_EXID = 'EXID';
     public const TAG_LEGACY_EXID = '_EXID';
     private DataFixService $dataFixService;
@@ -159,6 +173,7 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             'title' => $this->title(),
             'description' => $this->description(),
             'selected_tag' => $this->preferredTag(),
+            'display_mode' => $this->displayMode(),
             'authorities' => $catalogue->all(),
             'authority_catalogue_writable' => AuthorityCatalogueStorage::isWritable(),
             'gedcom_types' => $gedcomTypes,
@@ -168,11 +183,19 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     public function postAdminAction(ServerRequestInterface $request): ResponseInterface
     {
         $tag = Validator::parsedBody($request)->string('exid_tag');
+        $displayMode = Validator::parsedBody($request)->string('exid_display_mode');
         if (!in_array($tag, [self::TAG_EXID, self::TAG_LEGACY_EXID], true)) {
             FlashMessages::addMessage(I18N::translate('The selected EXID tag is invalid.'), 'danger');
         } else {
             $this->setPreference(self::PREFERENCE_EXID_TAG, $tag);
             FlashMessages::addMessage(I18N::translate('The EXID tag preference has been updated.'), 'success');
+        }
+
+        if (in_array($displayMode, [self::DISPLAY_MODE_SIDEBAR, self::DISPLAY_MODE_FACTS], true)) {
+            $this->setPreference(self::PREFERENCE_DISPLAY_MODE, $displayMode);
+            FlashMessages::addMessage(I18N::translate('The EXID display preference has been updated.'), 'success');
+        } else {
+            FlashMessages::addMessage(I18N::translate('The selected EXID display mode is invalid.'), 'danger');
         }
 
         try {
@@ -289,13 +312,95 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     }
 
     /**
-     * Describe the legacy FamilySearch conversion shown in the data-fix menu.
+     * Where EXID facts are shown on an individual page.
+     *
+     * The sidebar mode follows the normal webtrees module behaviour: when
+     * this sidebar is enabled, its EXID facts are removed from the facts tab.
+     * If the sidebar is disabled in webtrees, the facts tab automatically
+     * shows them again because supportedFacts() returns an empty collection
+     * for modules that are not active as sidebars.
+     */
+    private function displayMode(): string
+    {
+        $mode = $this->getPreference(self::PREFERENCE_DISPLAY_MODE, self::DISPLAY_MODE_SIDEBAR);
+
+        return in_array($mode, [self::DISPLAY_MODE_SIDEBAR, self::DISPLAY_MODE_FACTS], true)
+            ? $mode
+            : self::DISPLAY_MODE_SIDEBAR;
+    }
+
+    public function defaultSidebarOrder(): int
+    {
+        return 2;
+    }
+
+    public function hasSidebarContent(Individual $individual): bool
+    {
+        return $this->displayMode() === self::DISPLAY_MODE_SIDEBAR
+            && $individual->facts([self::TAG_EXID, self::TAG_LEGACY_EXID])->isNotEmpty();
+    }
+
+    public function getSidebarContent(Individual $individual): string
+    {
+        if ($this->displayMode() !== self::DISPLAY_MODE_SIDEBAR) {
+            return '';
+        }
+
+        $facts = $individual->facts([self::TAG_EXID, self::TAG_LEGACY_EXID]);
+        $rows = $facts
+            ->map(static fn (Fact $fact): string => view('fact', ['fact' => $fact, 'record' => $individual]))
+            ->implode('');
+
+        return '<table class="table table-sm mb-0"><tbody>' . strip_tags(
+            $rows,
+            '<table><tbody><tr><th><td><div><span><a><i><br><button><form><input>',
+        ) . '</tbody></table>';
+    }
+
+    public function supportedFacts(): Collection
+    {
+        if ($this->displayMode() !== self::DISPLAY_MODE_SIDEBAR) {
+            return new Collection();
+        }
+
+        return new Collection(['INDI:' . self::TAG_EXID, 'INDI:' . self::TAG_LEGACY_EXID]);
+    }
+
+    /**
+     * Describe the EXID data corrections shown in the data-fix menu.
      */
     public function fixOptions(Tree $tree): string
     {
-        return '<p>' . e(I18N::translate(
-            'Replace level-1 _FSFTID tags with EXID (or _EXID) and the configured FamilySearch Person ID TYPE URI.'
-        )) . '</p>';
+        return '<p>' . e(I18N::translate('Select the data correction to run.')) . '</p>' .
+            '<div class="mb-3">' .
+            '<label class="form-label" for="exid-fix-operation">' . e(I18N::translate('Data correction')) . '</label>' .
+            '<select class="form-select" id="exid-fix-operation" name="' . self::FIX_OPERATION_PARAMETER . '">' .
+            '<option value="' . self::FIX_OPERATION_FAMILYSEARCH . '">' . e(I18N::translate('Replace level-1 _FSFTID tags with a FamilySearch EXID')) . '</option>' .
+            '<option value="' . self::FIX_OPERATION_REPLACE_TYPE . '">' . e(I18N::translate('Replace an EXID TYPE URI')) . '</option>' .
+            '</select>' .
+            '</div>' .
+            '<div id="exid-type-replacement-fields" class="row mb-3 d-none">' .
+            '<div class="col-md-6">' .
+            '<label class="form-label" for="old-type-uri">' . e(I18N::translate('Current TYPE URI')) . '</label>' .
+            '<input class="form-control font-monospace" type="text" id="old-type-uri" name="' . self::OLD_TYPE_PARAMETER . '" autocomplete="off">' .
+            '</div>' .
+            '<div class="col-md-6">' .
+            '<label class="form-label" for="new-type-uri">' . e(I18N::translate('Replacement TYPE URI')) . '</label>' .
+            '<input class="form-control font-monospace" type="text" id="new-type-uri" name="' . self::NEW_TYPE_PARAMETER . '" autocomplete="off">' .
+            '</div>' .
+            '<div class="col-12 form-text">' . e(I18N::translate('The replacement applies to TYPE children of EXID and _EXID in all supported GEDCOM record types.')) . '</div>' .
+            '</div>' .
+            '<p class="form-text">' . e(I18N::translate('The FamilySearch conversion uses the configured EXID or _EXID tag for new identifiers.')) . '</p>' .
+            '<script>' .
+            '(function () {' .
+            'const operation = document.getElementById("exid-fix-operation");' .
+            'const fields = document.getElementById("exid-type-replacement-fields");' .
+            'if (!operation || !fields) { return; }' .
+            'const update = function () { fields.classList.toggle("d-none", operation.value !== "' . self::FIX_OPERATION_REPLACE_TYPE . '"); };' .
+            'operation.addEventListener("change", update);' .
+            'update();' .
+            '}());' .
+            '</script>';
     }
 
     /**
@@ -310,82 +415,162 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
      */
     protected function familiesToFix(Tree $tree, array $params): ?Collection
     {
-        return $this->familiesToFixQuery($tree, $params)
-            ->where('f_gedcom', 'LIKE', "%\n1 _FSFTID %")
+        return $this->candidateQuery($this->familiesToFixQuery($tree, $params), 'f_gedcom', $params)
             ->pluck('f_id');
     }
 
     protected function individualsToFix(Tree $tree, array $params): ?Collection
     {
-        return $this->individualsToFixQuery($tree, $params)
-            ->where('i_gedcom', 'LIKE', "%\n1 _FSFTID %")
+        return $this->candidateQuery($this->individualsToFixQuery($tree, $params), 'i_gedcom', $params)
             ->pluck('i_id');
     }
 
     protected function locationsToFix(Tree $tree, array $params): ?Collection
     {
-        return $this->locationsToFixQuery($tree, $params)
-            ->where('o_gedcom', 'LIKE', "%\n1 _FSFTID %")
+        return $this->candidateQuery($this->locationsToFixQuery($tree, $params), 'o_gedcom', $params)
             ->pluck('o_id');
     }
 
     protected function mediaToFix(Tree $tree, array $params): ?Collection
     {
-        return $this->mediaToFixQuery($tree, $params)
-            ->where('m_gedcom', 'LIKE', "%\n1 _FSFTID %")
+        return $this->candidateQuery($this->mediaToFixQuery($tree, $params), 'm_gedcom', $params)
             ->pluck('m_id');
     }
 
     protected function notesToFix(Tree $tree, array $params): ?Collection
     {
-        return $this->notesToFixQuery($tree, $params)
-            ->where('o_gedcom', 'LIKE', "%\n1 _FSFTID %")
+        return $this->candidateQuery($this->notesToFixQuery($tree, $params), 'o_gedcom', $params)
             ->pluck('o_id');
     }
 
     protected function repositoriesToFix(Tree $tree, array $params): ?Collection
     {
-        return $this->repositoriesToFixQuery($tree, $params)
-            ->where('o_gedcom', 'LIKE', "%\n1 _FSFTID %")
+        return $this->candidateQuery($this->repositoriesToFixQuery($tree, $params), 'o_gedcom', $params)
             ->pluck('o_id');
     }
 
     protected function sourcesToFix(Tree $tree, array $params): ?Collection
     {
-        return $this->sourcesToFixQuery($tree, $params)
-            ->where('s_gedcom', 'LIKE', "%\n1 _FSFTID %")
+        return $this->candidateQuery($this->sourcesToFixQuery($tree, $params), 's_gedcom', $params)
             ->pluck('s_id');
     }
 
     protected function submittersToFix(Tree $tree, array $params): ?Collection
     {
-        return $this->submittersToFixQuery($tree, $params)
-            ->where('o_gedcom', 'LIKE', "%\n1 _FSFTID %")
+        return $this->candidateQuery($this->submittersToFixQuery($tree, $params), 'o_gedcom', $params)
             ->pluck('o_id');
+    }
+
+    private function candidateQuery(Builder $query, string $column, array $params): Builder
+    {
+        if ($this->fixOperation($params) === self::FIX_OPERATION_REPLACE_TYPE) {
+            // The exact parent/TYPE relationship is checked in PHP.  The SQL
+            // predicate only narrows the candidate set without making any
+            // assumptions about the level at which an EXID occurs.
+            return $query->where($column, 'LIKE', "%\n% TYPE %");
+        }
+
+        return $query->where($column, 'LIKE', "%\n1 _FSFTID %");
     }
 
     public function doesRecordNeedUpdate(GedcomRecord $record, array $params): bool
     {
+        if ($this->fixOperation($params) === self::FIX_OPERATION_REPLACE_TYPE) {
+            return $this->replaceTypeInExid($record->gedcom(), $params) !== $record->gedcom();
+        }
+
         return preg_match('/^1 _FSFTID\s+\S+/mu', $record->gedcom()) === 1;
     }
 
     public function previewUpdate(GedcomRecord $record, array $params): string
     {
+        $newGedcom = $this->updatedGedcom($record->gedcom(), $params);
+
         return $this->dataFixService->gedcomDiff(
             $record->tree(),
             $record->gedcom(),
-            $this->convertLegacyFamilySearchIds($record->gedcom()),
+            $newGedcom,
         );
     }
 
     public function updateRecord(GedcomRecord $record, array $params): void
     {
         $oldGedcom = $record->gedcom();
-        $newGedcom = $this->convertLegacyFamilySearchIds($oldGedcom);
+        $newGedcom = $this->updatedGedcom($oldGedcom, $params);
 
         if ($newGedcom !== $oldGedcom) {
             $record->updateRecord($newGedcom, false);
         }
+    }
+
+    private function updatedGedcom(string $gedcom, array $params): string
+    {
+        if ($this->fixOperation($params) === self::FIX_OPERATION_REPLACE_TYPE) {
+            return $this->replaceTypeInExid($gedcom, $params);
+        }
+
+        return $this->convertLegacyFamilySearchIds($gedcom);
+    }
+
+    private function fixOperation(array $params): string
+    {
+        return ($params[self::FIX_OPERATION_PARAMETER] ?? '') === self::FIX_OPERATION_REPLACE_TYPE
+            ? self::FIX_OPERATION_REPLACE_TYPE
+            : self::FIX_OPERATION_FAMILYSEARCH;
+    }
+
+    /** @return array{old:string,new:string}|null */
+    private function typeReplacement(array $params): ?array
+    {
+        $old = trim((string) ($params[self::OLD_TYPE_PARAMETER] ?? ''));
+        $new = trim((string) ($params[self::NEW_TYPE_PARAMETER] ?? ''));
+
+        if ($old === '' || $new === '' || $old === $new) {
+            return null;
+        }
+
+        $uriPattern = '/^[A-Za-z][A-Za-z0-9+.-]*:[^\s]+$/u';
+
+        return preg_match($uriPattern, $old) === 1 && preg_match($uriPattern, $new) === 1
+            ? ['old' => $old, 'new' => $new]
+            : null;
+    }
+
+    private function replaceTypeInExid(string $gedcom, array $params): string
+    {
+        $replacement = $this->typeReplacement($params);
+        if ($replacement === null) {
+            return $gedcom;
+        }
+
+        $lines = preg_split('/\R/u', $gedcom) ?: [];
+        $stack = [];
+
+        foreach ($lines as $index => $line) {
+            if (preg_match('/^(\d+)\s+([^\s]+)(?:\s+(.*))?$/u', $line, $match) !== 1) {
+                continue;
+            }
+
+            $level = (int) $match[1];
+            $tag = $match[2];
+            $value = trim((string) ($match[3] ?? ''));
+            $parent = $level > 0 ? ($stack[$level - 1] ?? null) : null;
+
+            if ($tag === 'TYPE' && is_array($parent) && in_array($parent['tag'], [self::TAG_EXID, self::TAG_LEGACY_EXID], true) && $value === $replacement['old']) {
+                $lines[$index] = preg_replace_callback(
+                    '/^(\d+\s+TYPE\s+).*$/u',
+                    static function (array $lineMatch) use ($replacement): string {
+                        return $lineMatch[1] . $replacement['new'];
+                    },
+                    $line,
+                ) ?? $line;
+            }
+
+            $stack = array_slice($stack, 0, $level);
+            $stack[$level] = ['tag' => $tag];
+        }
+
+        return implode("\n", $lines);
     }
 
     private function convertLegacyFamilySearchIds(string $gedcom): string

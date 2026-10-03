@@ -50,6 +50,24 @@ msgstr ""
 msgid "Choose which GEDCOM tag should be generated when a new external identifier is added."
 msgstr ""
 
+msgid "Where should external identifiers be displayed?"
+msgstr ""
+
+msgid "In the standard sidebar, or in Facts and events when the sidebar is disabled"
+msgstr ""
+
+msgid "Always in Facts and events"
+msgstr ""
+
+msgid "The standard mode uses the webtrees sidebar. If that sidebar is disabled, the identifiers remain visible in the Facts and events tab."
+msgstr ""
+
+msgid "The EXID display preference has been updated."
+msgstr ""
+
+msgid "The selected EXID display mode is invalid."
+msgstr ""
+
 msgid "Custom EXID authorities"
 msgstr ""
 
@@ -129,4 +147,28 @@ msgid "The external identifier does not match the selected authority."
 msgstr ""
 
 msgid "Replace level-1 _FSFTID tags with EXID (or _EXID) and the configured FamilySearch Person ID TYPE URI."
+msgstr ""
+
+msgid "Select the data correction to run."
+msgstr ""
+
+msgid "Data correction"
+msgstr ""
+
+msgid "Replace level-1 _FSFTID tags with a FamilySearch EXID"
+msgstr ""
+
+msgid "Replace an EXID TYPE URI"
+msgstr ""
+
+msgid "Current TYPE URI"
+msgstr ""
+
+msgid "Replacement TYPE URI"
+msgstr ""
+
+msgid "The replacement applies to TYPE children of EXID and _EXID in all supported GEDCOM record types."
+msgstr ""
+
+msgid "The FamilySearch conversion uses the configured EXID or _EXID tag for new identifiers."
 msgstr ""

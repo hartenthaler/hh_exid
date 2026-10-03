@@ -14,6 +14,7 @@ This webtrees module provides support for external identifiers.
 * [Editing the TYPE value](#editing-the-type-value)
 * [For administrators](#for-administrators)
 * [Choosing the tag for new identifiers](#choosing-the-tag-for-new-identifiers)
+* [Choosing the display location](#choosing-the-display-location)
 * [Managing the authority catalogue](#managing-the-authority-catalogue)
 * [Screenshots](#screenshots)
 * [Requirements](#requirements)
@@ -77,6 +78,22 @@ installations. Modules that create identifiers can use the public
 `ExidServices::preferredTag()` service when hh_exid is installed and active.
 Such modules must detect the optional service and use `_EXID` themselves as a
 safe fallback when hh_exid is unavailable.
+
+### Choosing the display location
+
+The administrator can choose whether EXID and `_EXID` values should use the
+standard sidebar or always remain in the **Facts and events** tab. In standard
+mode, disabling the hh_exid sidebar makes webtrees show the identifiers in the
+Facts and events tab automatically.
+
+### Data corrections
+
+The webtrees data-fix page offers a correction for replacing one EXID `TYPE`
+URI with another. Enter the current and replacement URI and search the tree.
+The correction checks `EXID` and `_EXID` children in all record types supported
+by webtrees, including identifiers nested in event structures; unrelated
+`TYPE` values are left unchanged. The existing FamilySearch `_FSFTID`
+conversion remains available in the same data-fix form.
 
 ### Managing the authority catalogue
 

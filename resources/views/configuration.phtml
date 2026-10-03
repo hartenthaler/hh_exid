@@ -8,6 +8,7 @@ use Fisharebest\Webtrees\I18N;
 /** @var string $title */
 /** @var string $description */
 /** @var string $selected_tag */
+/** @var string $display_mode */
 /** @var list<array{key:string,label:string,type_uris:list<string>,value_pattern:string,allowed_hosts:list<string>,contexts:list<string>}> $authorities */
 /** @var bool $authority_catalogue_writable */
 /** @var list<array{source_file:string,label:string,language:string,uri:string,documentation:list<string>,contexts:list<string>}> $gedcom_types */
@@ -31,6 +32,17 @@ use Fisharebest\Webtrees\I18N;
                 <option value="_EXID" <?= $selected_tag === '_EXID' ? 'selected' : '' ?>><?= e(I18N::translate('_EXID (GEDCOM 5.5.1)')) ?></option>
             </select>
             <div class="form-text"><?= I18N::translate('Choose which GEDCOM tag should be generated when a new external identifier is added.') ?></div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label" for="exid-display-mode"><?= I18N::translate('Where should external identifiers be displayed?') ?></label>
+        <div class="col-sm-9">
+            <select class="form-select" id="exid-display-mode" name="exid_display_mode">
+                <option value="sidebar" <?= $display_mode === 'sidebar' ? 'selected' : '' ?>><?= e(I18N::translate('In the standard sidebar, or in Facts and events when the sidebar is disabled')) ?></option>
+                <option value="facts" <?= $display_mode === 'facts' ? 'selected' : '' ?>><?= e(I18N::translate('Always in Facts and events')) ?></option>
+            </select>
+            <div class="form-text"><?= I18N::translate('The standard mode uses the webtrees sidebar. If that sidebar is disabled, the identifiers remain visible in the Facts and events tab.') ?></div>
         </div>
     </div>
 
