@@ -164,7 +164,13 @@ msgstr ""
 msgid "Current TYPE URI"
 msgstr ""
 
+msgid "Select a current TYPE URI"
+msgstr ""
+
 msgid "Replacement TYPE URI"
+msgstr ""
+
+msgid "The current URI list is built from EXID and _EXID entries in this family tree."
 msgstr ""
 
 msgid "The replacement applies to TYPE children of EXID and _EXID in all supported GEDCOM record types."

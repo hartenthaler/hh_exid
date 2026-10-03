@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Hartenthaler\Webtrees\Module\ExidModule;
 
 use Fisharebest\Webtrees\Elements\ExternalIdentifier;
+use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\FlashMessages;
 use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Module\AbstractModule;
@@ -45,6 +46,7 @@ use function is_array;
 use function json_encode;
 use function preg_split;
 use function preg_match;
+use function sort;
 use function trim;
 
 class ExidModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleDataFixInterface, ModuleGlobalInterface, ModuleSidebarInterface
@@ -371,6 +373,13 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
      */
     public function fixOptions(Tree $tree): string
     {
+        $currentTypeUris = $this->typeUrisInTree($tree);
+
+        $currentOptions = '<option value="">' . e(I18N::translate('Select a current TYPE URI')) . '</option>';
+        foreach ($currentTypeUris as $uri) {
+            $currentOptions .= '<option value="' . e($uri) . '">' . e($this->typeUriLabel($uri)) . '</option>';
+        }
+
         return '<p>' . e(I18N::translate('Select the data correction to run.')) . '</p>' .
             '<div class="mb-3">' .
             '<label class="form-label" for="exid-fix-operation">' . e(I18N::translate('Data correction')) . '</label>' .
@@ -382,12 +391,13 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             '<div id="exid-type-replacement-fields" class="row mb-3 d-none">' .
             '<div class="col-md-6">' .
             '<label class="form-label" for="old-type-uri">' . e(I18N::translate('Current TYPE URI')) . '</label>' .
-            '<input class="form-control font-monospace" type="text" id="old-type-uri" name="' . self::OLD_TYPE_PARAMETER . '" autocomplete="off">' .
+            '<select class="form-select font-monospace" id="old-type-uri" name="' . self::OLD_TYPE_PARAMETER . '">' . $currentOptions . '</select>' .
             '</div>' .
             '<div class="col-md-6">' .
             '<label class="form-label" for="new-type-uri">' . e(I18N::translate('Replacement TYPE URI')) . '</label>' .
             '<input class="form-control font-monospace" type="text" id="new-type-uri" name="' . self::NEW_TYPE_PARAMETER . '" autocomplete="off">' .
             '</div>' .
+            '<div class="col-12 form-text">' . e(I18N::translate('The current URI list is built from EXID and _EXID entries in this family tree.')) . '</div>' .
             '<div class="col-12 form-text">' . e(I18N::translate('The replacement applies to TYPE children of EXID and _EXID in all supported GEDCOM record types.')) . '</div>' .
             '</div>' .
             '<p class="form-text">' . e(I18N::translate('The FamilySearch conversion uses the configured EXID or _EXID tag for new identifiers.')) . '</p>' .
@@ -464,19 +474,106 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
     private function candidateQuery(Builder $query, string $column, array $params): Builder
     {
         if ($this->fixOperation($params) === self::FIX_OPERATION_REPLACE_TYPE) {
-            // The exact parent/TYPE relationship is checked in PHP.  The SQL
-            // predicate only narrows the candidate set without making any
-            // assumptions about the level at which an EXID occurs.
-            return $query->where($column, 'LIKE', "%\n% TYPE %");
+            $oldTypeUri = trim((string) ($params[self::OLD_TYPE_PARAMETER] ?? ''));
+
+            if ($oldTypeUri === '') {
+                return $query->whereRaw('1 = 0');
+            }
+
+            // The exact parent/TYPE relationship is checked in PHP.  This
+            // predicate still limits the database result to records that
+            // contain the selected URI instead of every record with a TYPE.
+            return $query->where($column, 'LIKE', '% TYPE ' . $oldTypeUri . '%');
         }
 
         return $query->where($column, 'LIKE', "%\n1 _FSFTID %");
     }
 
+    /**
+     * Find the EXID TYPE URIs that are actually used in this tree.
+     *
+     * The scan follows the same record sources as the EXID report.  Cursors
+     * keep the memory use bounded even for large trees.
+     *
+     * @return list<string>
+     */
+    private function typeUrisInTree(Tree $tree): array
+    {
+        $sources = [
+            ['table' => 'individuals', 'file' => 'i_file', 'gedcom' => 'i_gedcom'],
+            ['table' => 'families', 'file' => 'f_file', 'gedcom' => 'f_gedcom'],
+            ['table' => 'sources', 'file' => 's_file', 'gedcom' => 's_gedcom'],
+            ['table' => 'media', 'file' => 'm_file', 'gedcom' => 'm_gedcom'],
+            ['table' => 'other', 'file' => 'o_file', 'gedcom' => 'o_gedcom'],
+        ];
+
+        $uris = [];
+
+        foreach ($sources as $source) {
+            $query = DB::table($source['table'])
+                ->where($source['file'], '=', $tree->id())
+                ->where($source['gedcom'], 'LIKE', '% TYPE %')
+                ->select([$source['gedcom']]);
+
+            foreach ($query->cursor() as $row) {
+                foreach ($this->typeUrisFromGedcom((string) $row->{$source['gedcom']}) as $uri) {
+                    $uris[$uri] = true;
+                }
+            }
+        }
+
+        $uris = array_keys($uris);
+        sort($uris, SORT_NATURAL | SORT_FLAG_CASE);
+
+        return $uris;
+    }
+
+    private function typeUriLabel(string $uri): string
+    {
+        $definition = ExidServices::catalog()->definition($uri);
+        $label = trim((string) ($definition['label'] ?? ''));
+
+        return $label === '' ? $uri : $label . ' — ' . $uri;
+    }
+
+    /** @return list<string> */
+    private function typeUrisFromGedcom(string $gedcom): array
+    {
+        $lines = preg_split('/\R/u', $gedcom) ?: [];
+        $stack = [];
+        $uris = [];
+
+        foreach ($lines as $line) {
+            if (preg_match('/^(\d+)\s+([^\s]+)(?:\s+(.*))?$/u', $line, $match) !== 1) {
+                continue;
+            }
+
+            $level = (int) $match[1];
+            $tag = $match[2];
+            $value = trim((string) ($match[3] ?? ''));
+            $parent = $level > 0 ? ($stack[$level - 1] ?? null) : null;
+
+            if ($tag === 'TYPE'
+                && is_array($parent)
+                && in_array($parent['tag'], [self::TAG_EXID, self::TAG_LEGACY_EXID], true)
+                && $value !== '') {
+                $uris[$value] = true;
+            }
+
+            $stack = array_slice($stack, 0, $level);
+            $stack[$level] = ['tag' => $tag];
+        }
+
+        return array_keys($uris);
+    }
+
     public function doesRecordNeedUpdate(GedcomRecord $record, array $params): bool
     {
         if ($this->fixOperation($params) === self::FIX_OPERATION_REPLACE_TYPE) {
-            return $this->replaceTypeInExid($record->gedcom(), $params) !== $record->gedcom();
+            // Candidate validity depends only on the selected search URI.
+            // The replacement value is validated separately when a preview
+            // or update is generated.
+            return $this->containsTypeInExid($record->gedcom(), $params);
         }
 
         return preg_match('/^1 _FSFTID\s+\S+/mu', $record->gedcom()) === 1;
@@ -531,9 +628,48 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
 
         $uriPattern = '/^[A-Za-z][A-Za-z0-9+.-]*:[^\s]+$/u';
 
-        return preg_match($uriPattern, $old) === 1 && preg_match($uriPattern, $new) === 1
+        // The old value is the search key and must be a URI.  The new value
+        // is deliberately treated as replacement text: it may be a new URI
+        // that is not yet known to the catalogue.  Reject only empty or
+        // multi-line values so that the GEDCOM line structure remains valid.
+        return preg_match($uriPattern, $old) === 1 && preg_match('/^\S+$/u', $new) === 1
             ? ['old' => $old, 'new' => $new]
             : null;
+    }
+
+    private function containsTypeInExid(string $gedcom, array $params): bool
+    {
+        $old = trim((string) ($params[self::OLD_TYPE_PARAMETER] ?? ''));
+
+        if ($old === '' || preg_match('/^[A-Za-z][A-Za-z0-9+.-]*:[^\s]+$/u', $old) !== 1) {
+            return false;
+        }
+
+        $lines = preg_split('/\R/u', $gedcom) ?: [];
+        $stack = [];
+
+        foreach ($lines as $line) {
+            if (preg_match('/^(\d+)\s+([^\s]+)(?:\s+(.*))?$/u', $line, $match) !== 1) {
+                continue;
+            }
+
+            $level = (int) $match[1];
+            $tag = $match[2];
+            $value = trim((string) ($match[3] ?? ''));
+            $parent = $level > 0 ? ($stack[$level - 1] ?? null) : null;
+
+            if ($tag === 'TYPE'
+                && is_array($parent)
+                && in_array($parent['tag'], [self::TAG_EXID, self::TAG_LEGACY_EXID], true)
+                && $value === $old) {
+                return true;
+            }
+
+            $stack = array_slice($stack, 0, $level);
+            $stack[$level] = ['tag' => $tag];
+        }
+
+        return false;
     }
 
     private function replaceTypeInExid(string $gedcom, array $params): string

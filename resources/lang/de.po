@@ -162,8 +162,14 @@ msgstr "Eine EXID-TYPE-URI ersetzen"
 msgid "Current TYPE URI"
 msgstr "Aktuelle TYPE-URI"
 
+msgid "Select a current TYPE URI"
+msgstr "Aktuelle TYPE-URI auswählen"
+
 msgid "Replacement TYPE URI"
 msgstr "Ersetzende TYPE-URI"
+
+msgid "The current URI list is built from EXID and _EXID entries in this family tree."
+msgstr "Die Liste der aktuellen URIs wird aus den EXID- und _EXID-Einträgen dieses Stammbaums gebildet."
 
 msgid "The replacement applies to TYPE children of EXID and _EXID in all supported GEDCOM record types."
 msgstr "Die Ersetzung gilt für TYPE-Unterelemente von EXID und _EXID in allen unterstützten GEDCOM-Datensatzarten."
