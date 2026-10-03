@@ -48,6 +48,24 @@ msgstr "_EXID (GEDCOM 5.5.1)"
 msgid "Choose which GEDCOM tag should be generated when a new external identifier is added."
 msgstr "Wählen Sie, welches GEDCOM-Kennzeichen beim Hinzufügen einer neuen externen Kennung erzeugt werden soll."
 
+msgid "Where should external identifiers be displayed?"
+msgstr "Wo sollen externe Kennungen angezeigt werden?"
+
+msgid "In the standard sidebar, or in Facts and events when the sidebar is disabled"
+msgstr "In der Standardsidebar oder in ‚Tatsachen und Ereignisse‘, wenn die Sidebar deaktiviert ist"
+
+msgid "Always in Facts and events"
+msgstr "Immer in ‚Tatsachen und Ereignisse‘"
+
+msgid "The standard mode uses the webtrees sidebar. If that sidebar is disabled, the identifiers remain visible in the Facts and events tab."
+msgstr "Der Standardmodus verwendet die webtrees-Sidebar. Wenn diese Sidebar deaktiviert ist, bleiben die Kennungen im Reiter ‚Tatsachen und Ereignisse‘ sichtbar."
+
+msgid "The EXID display preference has been updated."
+msgstr "Die Anzeigeeinstellung für EXID wurde aktualisiert."
+
+msgid "The selected EXID display mode is invalid."
+msgstr "Der ausgewählte EXID-Anzeigemodus ist ungültig."
+
 msgid "Custom EXID authorities"
 msgstr "Benutzerdefinierte EXID-Autoritäten"
 
@@ -128,3 +146,27 @@ msgstr "Die externe Kennung entspricht nicht dem Muster der ausgewählten Autori
 
 msgid "Replace level-1 _FSFTID tags with EXID (or _EXID) and the configured FamilySearch Person ID TYPE URI."
 msgstr "Kennzeichen _FSFTID der Ebene 1 durch EXID (oder _EXID) und die registrierte GEDCOM-TYPE-URI für die FamilySearch-Personen-ID ersetzen."
+
+msgid "Select the data correction to run."
+msgstr "Wählen Sie die auszuführende Datenkorrektur."
+
+msgid "Data correction"
+msgstr "Datenkorrektur"
+
+msgid "Replace level-1 _FSFTID tags with a FamilySearch EXID"
+msgstr "Kennzeichen _FSFTID der Ebene 1 durch eine FamilySearch-EXID ersetzen"
+
+msgid "Replace an EXID TYPE URI"
+msgstr "Eine EXID-TYPE-URI ersetzen"
+
+msgid "Current TYPE URI"
+msgstr "Aktuelle TYPE-URI"
+
+msgid "Replacement TYPE URI"
+msgstr "Ersetzende TYPE-URI"
+
+msgid "The replacement applies to TYPE children of EXID and _EXID in all supported GEDCOM record types."
+msgstr "Die Ersetzung gilt für TYPE-Unterelemente von EXID und _EXID in allen unterstützten GEDCOM-Datensatzarten."
+
+msgid "The FamilySearch conversion uses the configured EXID or _EXID tag for new identifiers."
+msgstr "Die FamilySearch-Konvertierung verwendet für neue Kennungen das konfigurierte Kennzeichen EXID oder _EXID."

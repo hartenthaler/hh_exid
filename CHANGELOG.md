@@ -2,6 +2,11 @@
 
 ## Next release
 
+- Added an administrator choice for displaying EXID values in the standard
+  individual sidebar or always in the **Facts and events** tab. In standard
+  mode, disabling the sidebar falls back to the facts tab.
+- Added an administrator data correction to replace an EXID `TYPE` URI across
+  all supported GEDCOM record types, including both `EXID` and `_EXID`.
 - Fixed the Online-OFB authority definition to use HTTPS and migrate the
   previously stored HTTP URI automatically.
 - Added an administrator data-fix for converting legacy level-1 `_FSFTID`
