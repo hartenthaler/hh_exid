@@ -81,9 +81,6 @@ msgstr "Schlüssel"
 msgid "Label"
 msgstr "Bezeichnung"
 
-msgid "TYPE URIs"
-msgstr "TYPE-URIs"
-
 msgid "Value pattern"
 msgstr "Wertmuster"
 
