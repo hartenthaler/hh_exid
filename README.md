@@ -132,6 +132,11 @@ context list, because a shared note may refer to any EXID authority. An empty
 context list is treated as `*`, so an
 unclassified or custom authority remains available instead of being hidden.
 
+The module does not test whether generated external URLs are reachable. Such
+checks are inherently unreliable because providers use redirects, login
+pages, rate limits, bot protection and generic error pages. An unregistered
+TYPE URI is reported with a warning because no link can be generated at all.
+
 ## Screenshots
 
 The following screenshots show the module in webtrees. The first shows EXID

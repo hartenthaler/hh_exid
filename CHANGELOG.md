@@ -2,6 +2,8 @@
 
 ## Next release
 
+- Removed unreliable server-side reachability checks for registered EXID
+  links. Unknown TYPE URIs are still warned because no link can be generated.
 - Added an administrator choice for displaying EXID values in the standard
   individual sidebar or always in the **Facts and events** tab. In standard
   mode, disabling the sidebar falls back to the facts tab.

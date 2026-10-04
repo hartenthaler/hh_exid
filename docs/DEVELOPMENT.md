@@ -70,6 +70,15 @@ Those edits are stored separately in `data/hh_exid/gedcom-exid-contexts.json`;
 the registry snapshot remains read-only. Resetting the registry contexts removes
 the overrides and reactivates the central defaults.
 
+## External URL validation
+
+The module deliberately does not test whether a generated external URL is
+reachable. Providers may return redirects, login pages, rate-limit responses,
+bot-protection pages or generic error pages for both existing and non-existing
+identifiers. A server-side result would therefore be too unreliable to show a
+meaningful warning. The only deterministic warning is for an unregistered
+TYPE URI: no link can be generated from such a type.
+
 ## Releases
 
 Keep meaningful user-facing changes compared with the previous development
