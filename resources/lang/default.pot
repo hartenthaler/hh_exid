@@ -143,6 +143,9 @@ msgstr ""
 msgid "The external identifier does not match the selected authority."
 msgstr ""
 
+msgid "The external identifier type is not registered; no link can be generated."
+msgstr ""
+
 msgid "Replace level-1 _FSFTID tags with EXID (or _EXID) and the configured FamilySearch Person ID TYPE URI."
 msgstr ""
 

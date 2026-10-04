@@ -145,6 +145,7 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
 
         $factLabels = [I18N::translate('External identifier'), 'EXID', '_EXID'];
         $patternError = I18N::translate('The external identifier does not match the selected authority.');
+        $unknownTypeWarning = I18N::translate('The external identifier type is not registered; no link can be generated.');
 
         // Keep configuration on the external script element.  Inline scripts
         // can be blocked by a site's Content-Security-Policy, while data
@@ -153,7 +154,8 @@ class ExidModule extends AbstractModule implements ModuleConfigInterface, Module
             ' data-hh-exid-type-uris="' . e((string) json_encode(array_keys($typeUris), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)) . '"' .
             ' data-hh-exid-value-patterns="' . e((string) json_encode($valuePatterns, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)) . '"' .
             ' data-hh-exid-fact-labels="' . e((string) json_encode($factLabels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)) . '"' .
-            ' data-hh-exid-pattern-error="' . e($patternError) . '" defer></script>';
+            ' data-hh-exid-pattern-error="' . e($patternError) . '"' .
+            ' data-hh-exid-unknown-type-warning="' . e($unknownTypeWarning) . '" defer></script>';
     }
 
     public function getAdminAction(ServerRequestInterface $request): ResponseInterface

@@ -16,6 +16,7 @@
     window.hhExidValuePatterns = readJsonAttribute(configurationScript, 'hhExidValuePatterns', window.hhExidValuePatterns || {});
     window.hhExidFactLabels = readJsonAttribute(configurationScript, 'hhExidFactLabels', window.hhExidFactLabels || []);
     window.hhExidPatternError = configurationScript?.dataset.hhExidPatternError || window.hhExidPatternError || '';
+    window.hhExidUnknownTypeWarning = configurationScript?.dataset.hhExidUnknownTypeWarning || window.hhExidUnknownTypeWarning || '';
 
     function knownTypeUri(text) {
         const knownTypeUris = window.hhExidTypeUris || [];
@@ -110,6 +111,25 @@
         return encoded;
     }
 
+    function addUnknownTypeWarning(typeNode) {
+        if (!typeNode || typeNode.nextElementSibling?.dataset.exidTypeWarning === 'true') {
+            return;
+        }
+
+        const warning = document.createElement('span');
+        warning.className = 'text-warning ms-1';
+        warning.dataset.exidTypeWarning = 'true';
+        warning.title = window.hhExidUnknownTypeWarning || 'The external identifier type is not registered; no link can be generated.';
+        warning.setAttribute('aria-label', warning.title);
+
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-exclamation-triangle';
+        icon.setAttribute('aria-hidden', 'true');
+        warning.appendChild(icon);
+
+        typeNode.insertAdjacentElement('afterend', warning);
+    }
+
     function linkValue(valueNode, type) {
         const value = valueNode.textContent.trim();
 
@@ -144,9 +164,28 @@
         return '';
     }
 
+    function typeNodeInScope(scope) {
+        if (!scope) {
+            return null;
+        }
+
+        // Only explicit value nodes can prove that a TYPE was supplied. The
+        // surrounding .wt-fact-type container may contain a translated label
+        // even when the EXID has no TYPE at all.
+        return scope.querySelector('[data-exid-type-value], .wt-fact-type .value');
+    }
+
     function linkifyExternalIdentifiers() {
         document.querySelectorAll('[data-exid-value]').forEach(function (valueNode) {
-            linkValue(valueNode, typeInScope(valueNode.closest('tr, .wt-fact, .fact, .wt-fact-main-attributes')));
+            const scope = valueNode.closest('tr, .wt-fact, .fact, .wt-fact-main-attributes');
+            const type = typeInScope(scope);
+            const typeNode = typeNodeInScope(scope);
+
+            if (!type && typeNode && typeNode.textContent.trim() !== '') {
+                addUnknownTypeWarning(typeNode);
+            }
+
+            linkValue(valueNode, type);
         });
 
         // GEDCOM EXID is a core element on individual pages, so webtrees may
@@ -155,6 +194,11 @@
         document.querySelectorAll('tr, .wt-fact, .fact').forEach(function (row) {
             const valueNode = row.querySelector('.wt-fact-value');
             const type = typeInScope(row);
+            const typeNode = typeNodeInScope(row);
+
+            if (!type && typeNode && typeNode.textContent.trim() !== '') {
+                addUnknownTypeWarning(typeNode);
+            }
 
             // A known TYPE URI is unambiguous here and also covers translated
             // labels and themes that use a different label markup.

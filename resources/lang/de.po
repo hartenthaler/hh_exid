@@ -52,13 +52,13 @@ msgid "Where should external identifiers be displayed?"
 msgstr "Wo sollen externe Kennungen angezeigt werden?"
 
 msgid "In the standard sidebar, or in Facts and events when the sidebar is disabled"
-msgstr "In der Standardsidebar oder in ‚Tatsachen und Ereignisse‘, wenn die Sidebar deaktiviert ist"
+msgstr "In der Standard-Navigationsleiste oder in ‚Tatsachen und Ereignisse‘, wenn die Navigationsleiste deaktiviert ist"
 
 msgid "Always in Facts and events"
 msgstr "Immer in ‚Tatsachen und Ereignisse‘"
 
 msgid "The standard mode uses the webtrees sidebar. If that sidebar is disabled, the identifiers remain visible in the Facts and events tab."
-msgstr "Der Standardmodus verwendet die webtrees-Sidebar. Wenn diese Sidebar deaktiviert ist, bleiben die Kennungen im Reiter ‚Tatsachen und Ereignisse‘ sichtbar."
+msgstr "Der Standardmodus verwendet die webtrees-Navigationsleiste. Wenn diese Navigationsleiste deaktiviert ist, bleiben die Kennungen im Reiter ‚Tatsachen und Ereignisse‘ sichtbar."
 
 msgid "The EXID display preference has been updated."
 msgstr "Die Anzeigeeinstellung für EXID wurde aktualisiert."
@@ -140,6 +140,9 @@ msgstr "Der EXID-Autoritätskatalog konnte nicht aktualisiert werden."
 
 msgid "The external identifier does not match the selected authority."
 msgstr "Die externe Kennung entspricht nicht dem Muster der ausgewählten Autorität."
+
+msgid "The external identifier type is not registered; no link can be generated."
+msgstr "Der Typ der externen Kennung ist nicht registriert; es kann kein Link erzeugt werden."
 
 msgid "Replace level-1 _FSFTID tags with EXID (or _EXID) and the configured FamilySearch Person ID TYPE URI."
 msgstr "Kennzeichen _FSFTID der Ebene 1 durch EXID (oder _EXID) und die registrierte GEDCOM-TYPE-URI für die FamilySearch-Personen-ID ersetzen."
